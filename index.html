@@ -9,10 +9,6 @@
   <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
   <script src="https://adsgram.ai/js/adsgram.js"></script>
 
-  <!-- Firebase Compatibility SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-
   <style>
     * {
       margin: 0;
@@ -104,6 +100,11 @@
       color: #ffffff;
     }
 
+    .btn-ad {
+      background: #28a745;
+      color: #ffffff;
+    }
+
     .btn-unlock {
       background: #1c2536;
       color: #4a5d78;
@@ -114,11 +115,6 @@
       background: #1e69ff;
       color: #ffffff;
       cursor: pointer;
-    }
-
-    .btn-ad {
-      background: #28a745;
-      color: #ffffff;
     }
 
     .toast {
@@ -159,8 +155,8 @@
     </div>
 
     <!-- Actions -->
-    <button class="btn btn-share" id="shareBtn">SHARE</button>
-    <button class="btn btn-ad" id="watchAdBtn">WATCH AD (+1 TASK)</button>
+    <button class="btn btn-share" id="shareBtn">STEP 1: SHARE TO UNLOCK</button>
+    <button class="btn btn-ad" id="watchAdBtn">STEP 2: WATCH AD (+1 TASK)</button>
     <button class="btn btn-unlock" id="unlockBtn" disabled>UNLOCK CONTENT (0/5)</button>
   </div>
 
@@ -169,29 +165,15 @@
 <script>
   // 1. CONFIGURATION
   const TOTAL_TASKS = 5;
-  const ADSGRAM_BLOCK_ID = "39945"; // Your Block ID
-  const SHARE_URL = "https://t.me/Spinner65bot/Letplay"; // Your Telegram Bot WebApp Link
+  const ADSGRAM_BLOCK_ID = "39945"; // Your Adsgram Block ID
+  const SHARE_URL = "https://t.me/Spinner65bot/Letplay"; // Telegram WebApp Link
 
-  // Firebase Config
-  const firebaseConfig = {
-    apiKey: "AIzaSyDf56sM8epNqzFUhsYY3goakU4BOT8SeGk",
-    authDomain: "zone--5.firebaseapp.com",
-    databaseURL: "https://zone--5-default-rtdb.firebaseio.com",
-    projectId: "zone--5",
-    storageBucket: "zone--5.firebasestorage.app",
-    messagingSenderId: "514214882278",
-    appId: "1:514214882278:web:6bf695aa0d82d28041c427"
-  };
-
-  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
-
-  // 2. STATE
+  // 2. STATE MANAGEMENT
   let userId = "guest_user";
   let completedTasks = 0;
   let adsgramInstance = null;
 
-  // Telegram Integration
+  // Initialize Telegram User
   if (window.Telegram && Telegram.WebApp) {
     Telegram.WebApp.ready();
     Telegram.WebApp.expand();
@@ -200,7 +182,7 @@
     }
   }
 
-  // 3. UI UPDATER
+  // 3. UI RENDERING
   function updateUI() {
     const percentage = Math.min(100, Math.floor((completedTasks / TOTAL_TASKS) * 100));
     document.getElementById('progressBar').style.width = percentage + "%";
@@ -221,7 +203,7 @@
     const toast = document.getElementById('toast');
     toast.innerText = msg;
     toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 2000);
+    setTimeout(() => toast.classList.remove('show'), 2200);
   }
 
   function incrementTask() {
@@ -229,16 +211,12 @@
       completedTasks++;
       updateUI();
       saveData();
-      showToast("Task Progress Saved!");
     }
   }
 
-  // 4. STORAGE
+  // 4. LOCAL STORAGE
   function saveData() {
     localStorage.setItem('userTasks_' + userId, completedTasks);
-    if (db && userId !== "guest_user") {
-      db.ref('tasks/' + userId).set({ completedTasks });
-    }
   }
 
   function loadData() {
@@ -246,14 +224,6 @@
     if (local !== null) {
       completedTasks = parseInt(local, 10);
       updateUI();
-    }
-    if (db && userId !== "guest_user") {
-      db.ref('tasks/' + userId).once('value').then(snapshot => {
-        if (snapshot.exists()) {
-          completedTasks = snapshot.val().completedTasks || 0;
-          updateUI();
-        }
-      });
     }
   }
 
@@ -263,15 +233,18 @@
       try {
         adsgramInstance = window.Adsgram.init({
           blockId: ADSGRAM_BLOCK_ID,
-          debug: true // Set to false for production
+          debug: false // Production mode
         });
-      } catch(e) { console.warn(e); }
+        console.log("Adsgram initialized for Block 39945");
+      } catch(e) { 
+        console.warn("Adsgram Init Error:", e); 
+      }
     }
   }
 
-  // 6. EVENT LISTENERS
+  // 6. EVENT HANDLERS
+  // STEP 1: SHARE ACTION
   document.getElementById('shareBtn').onclick = () => {
-    // Triggers Telegram native share picker
     const shareText = "Check this out and unlock premium content!";
     const fullShareUrl = `https://t.me/share/url?url=${encodeURIComponent(SHARE_URL)}&text=${encodeURIComponent(shareText)}`;
     
@@ -281,39 +254,53 @@
       window.open(fullShareUrl, '_blank');
     }
     
-    // Increment task when returning from share dialog
     setTimeout(() => {
       incrementTask();
-    }, 1000);
+      showToast("Step 1 Completed! +1 Task");
+    }, 1200);
   };
 
+  // STEP 2: ADSGRAM VIDEO AD ACTION
   document.getElementById('watchAdBtn').onclick = async () => {
-    if (!adsgramInstance) initAdsgram();
-    
-    if (adsgramInstance) {
-      try {
-        const res = await adsgramInstance.show();
-        if (res && res.done) {
-          incrementTask();
-          showToast("Ad completed! +1 Task");
-        }
-      } catch(err) {
-        showToast("Ad failed to load or skipped");
+    if (!adsgramInstance && window.Adsgram) {
+      initAdsgram();
+    }
+
+    if (!adsgramInstance) {
+      showToast("Adsgram loading... Open inside Telegram app.");
+      return;
+    }
+
+    try {
+      const result = await adsgramInstance.show();
+      if (result && result.done) {
+        incrementTask();
+        showToast("Step 2 Completed! +1 Task 🎉");
+      } else {
+        showToast("Ad closed early. No task credit given.");
       }
-    } else {
-      showToast("Adsgram unavailable. Test inside Telegram.");
+    } catch (err) {
+      console.error("Adsgram Error:", err);
+      if (err === 'no_ads' || err?.message === 'no_ads') {
+        showToast("No ads available right now. Try again soon.");
+      } else if (err === 'user_close') {
+        showToast("Ad closed early.");
+      } else {
+        showToast("Failed to load ad. Test inside Telegram.");
+      }
     }
   };
 
+  // UNLOCK ACTION
   document.getElementById('unlockBtn').onclick = () => {
     if (completedTasks >= TOTAL_TASKS) {
-      alert("Congratulations! Opening unlocked content...");
-      // Redirect to your target destination here:
-      // window.location.href = "https://your-content-link.com";
+      showToast("Unlocking content...");
+      // Add target destination link here:
+      // window.location.href = "https://your-unlocked-link.com";
     }
   };
 
-  // Init
+  // Run initialization
   loadData();
   initAdsgram();
 </script>
