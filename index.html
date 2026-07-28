@@ -88,7 +88,7 @@
       opacity: 0.85;
     }
 
-    .btn-share {
+    .btn-ad {
       background-color: #0ea5e9;
       color: #ffffff;
     }
@@ -120,7 +120,8 @@
       <span id="task-count">0 / 5 Tasks</span>
     </div>
 
-    <button class="btn btn-share" onclick="handleTask()">SHARE</button>
+    <!-- Main action button to play Adsgram Video Ads -->
+    <button class="btn btn-ad" onclick="handleTask()">WATCH AD TO UNLOCK</button>
     <button id="unlock-btn" class="btn btn-unlock" disabled onclick="unlockContent()">UNLOCK VIDEOS (0/5)</button>
   </div>
 
@@ -132,12 +133,12 @@
       tg.expand();
     }
 
-    // Configuration
+    // App State
     let completedTasks = 0;
     const totalTasks = 5;
     const ADSGRAM_BLOCK_ID = "40172";
 
-    // Handle Ad / Task Action
+    // Handle Adsgram Video Ad Trigger
     function handleTask() {
       if (completedTasks >= totalTasks) return;
 
@@ -147,31 +148,20 @@
 
           AdController.show()
             .then((result) => {
+              // User completed watching the ad successfully
               completedTasks++;
               updateUI();
             })
             .catch((error) => {
               console.error("Adsgram Error:", error);
-              // Fallback to sharing if ad fails or closes early
-              shareApp();
+              alert("Ad was closed early or could not be loaded.");
             });
         } catch (err) {
-          shareApp();
+          console.error(err);
+          alert("Error loading ad controller.");
         }
       } else {
-        shareApp();
-      }
-    }
-
-    // Share logic fallback
-    function shareApp() {
-      if (tg) {
-        const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent('Unlock hidden videos now!')}`;
-        tg.openTelegramLink(shareUrl);
-        completedTasks++;
-        updateUI();
-      } else {
-        alert("Please open this app inside Telegram.");
+        alert("Adsgram SDK is loading or blocked by AdBlocker.");
       }
     }
 
