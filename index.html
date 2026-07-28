@@ -95,14 +95,15 @@
 
     .btn-unlock {
       background-color: #1f2937;
-      color: #6b7280;
-      cursor: not-allowed;
+      color: #38bdf8;
+      border: 1px solid #0284c7;
+      cursor: pointer;
     }
 
     .btn-unlock.active {
       background-color: #eab308;
       color: #000000;
-      cursor: pointer;
+      border: none;
     }
   </style>
 </head>
@@ -120,9 +121,9 @@
       <span id="task-count">0 / 5 Tasks</span>
     </div>
 
-    <!-- Main action button to play Adsgram Video Ads -->
-    <button class="btn btn-ad" onclick="handleTask()">WATCH AD TO UNLOCK</button>
-    <button id="unlock-btn" class="btn btn-unlock" disabled onclick="unlockContent()">UNLOCK VIDEOS (0/5)</button>
+    <!-- Both buttons now trigger Adsgram video ads! -->
+    <button class="btn btn-ad" onclick="playAd()">WATCH AD TO UNLOCK</button>
+    <button id="unlock-btn" class="btn btn-unlock" onclick="playAd()">UNLOCK VIDEOS (0/5)</button>
   </div>
 
   <script>
@@ -138,9 +139,13 @@
     const totalTasks = 5;
     const ADSGRAM_BLOCK_ID = "40172";
 
-    // Handle Adsgram Video Ad Trigger
-    function handleTask() {
-      if (completedTasks >= totalTasks) return;
+    // Play Adsgram Video Ad
+    function playAd() {
+      // If tasks are already finished, handle final unlock action
+      if (completedTasks >= totalTasks) {
+        alert("🎉 Content Unlocked! Redirecting to videos...");
+        return;
+      }
 
       if (typeof window.Adsgram !== "undefined") {
         try {
@@ -154,11 +159,16 @@
             })
             .catch((error) => {
               console.error("Adsgram Error:", error);
-              alert("Ad was closed early or could not be loaded.");
+              // Handle early close or temporary inventory shortage without crashing
+              if (error && error.error) {
+                alert("Ad was closed early. Please watch till the end!");
+              } else {
+                alert("No ad available right now. Please try again in a few seconds.");
+              }
             });
         } catch (err) {
           console.error(err);
-          alert("Error loading ad controller.");
+          alert("Error launching ad. Please retry.");
         }
       } else {
         alert("Adsgram SDK is loading or blocked by AdBlocker.");
@@ -175,18 +185,12 @@
       document.getElementById('progress-fill').style.width = `${percent}%`;
 
       const unlockBtn = document.getElementById('unlock-btn');
-      unlockBtn.innerText = `UNLOCK VIDEOS (${completedTasks}/${totalTasks})`;
 
       if (completedTasks >= totalTasks) {
+        unlockBtn.innerText = `🎉 VIDEOS UNLOCKED (5/5)`;
         unlockBtn.classList.add('active');
-        unlockBtn.disabled = false;
-      }
-    }
-
-    // Final Unlock Action
-    function unlockContent() {
-      if (completedTasks >= totalTasks) {
-        alert("🎉 Content Unlocked!");
+      } else {
+        unlockBtn.innerText = `UNLOCK VIDEOS (${completedTasks}/${totalTasks})`;
       }
     }
   </script>
