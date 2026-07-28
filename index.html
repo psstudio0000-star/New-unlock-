@@ -68,7 +68,7 @@
       justify-content: space-between;
       font-size: 0.85rem;
       color: #9ca3af;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
       padding: 0 2px;
     }
 
@@ -88,15 +88,24 @@
       opacity: 0.85;
     }
 
+    /* Option 1: Share Button */
     .btn-share {
       background-color: #0ea5e9;
       color: #ffffff;
     }
 
+    /* Option 2: Watch Ad Button */
+    .btn-ad {
+      background-color: #0284c7;
+      color: #ffffff;
+    }
+
+    /* Final Unlock Button */
     .btn-unlock {
       background-color: #1f2937;
       color: #6b7280;
       cursor: not-allowed;
+      margin-top: 8px;
     }
 
     .btn-unlock.active {
@@ -120,7 +129,13 @@
       <span id="task-count">0 / 5 Tasks</span>
     </div>
 
+    <!-- Task Option 1: Share Link -->
     <button class="btn btn-share" onclick="handleShareTask()">SHARE</button>
+
+    <!-- Task Option 2: Watch Video Ad -->
+    <button class="btn btn-ad" onclick="playAd()">WATCH AD TO UNLOCK</button>
+
+    <!-- Final Unlock Action -->
     <button id="unlock-btn" class="btn btn-unlock" disabled onclick="unlockContent()">UNLOCK VIDEOS (0/5)</button>
   </div>
 
@@ -132,16 +147,16 @@
       tg.expand();
     }
 
-    // --- Configuration ---
+    // Configuration
     let completedTasks = 0;
     const totalTasks = 5;
     const ADSGRAM_BLOCK_ID = "40172";
-    
-    // Updated share URL from your image
     const DIRECT_SHARE_URL = "https://t.me/share/url?url=%20JOIN%20THIS%20AMAZING%20GROUP%20%F0%9F%A5%B5%20-%20https%3A%2F%2Ft.me%2F%2BIReYrDe7TbowZGNI";
 
-    // --- Share Task Logic ---
+    // 1. Share Option Action
     function handleShareTask() {
+      if (completedTasks >= totalTasks) return;
+
       if (tg) {
         tg.openTelegramLink(DIRECT_SHARE_URL);
       } else {
@@ -152,7 +167,7 @@
       updateUI();
     }
 
-    // --- Adsgram Ad Logic ---
+    // 2. Watch Ad Option Action
     function playAd() {
       if (completedTasks >= totalTasks) return;
 
@@ -167,26 +182,24 @@
             })
             .catch((error) => {
               console.error("Adsgram Error:", error);
-              alert("Ad temporary unavailable. Try again in a few seconds.");
+              alert("Ad closed early or temporarily unavailable. Please try again!");
             });
         } catch (err) {
           console.error(err);
         }
       } else {
-        alert("Waiting for Ad SDK to load or AdBlocker is active.");
+        alert("Adsgram SDK is loading or blocked by AdBlocker.");
       }
     }
 
-    // --- Unlock Button Logic ---
+    // 3. Final Unlock Check
     function unlockContent() {
       if (completedTasks >= totalTasks) {
-        alert("🎉 All tasks complete! Unlocking videos...");
-      } else if (completedTasks >= 1) {
-        playAd();
+        alert("🎉 All tasks completed! Unlocking videos now...");
       }
     }
 
-    // --- UI Update Helper ---
+    // Update UI Progress
     function updateUI() {
       if (completedTasks > totalTasks) completedTasks = totalTasks;
 
@@ -202,9 +215,6 @@
         unlockBtn.classList.add('active');
         unlockBtn.disabled = false;
         unlockBtn.innerText = `🎉 UNLOCK VIDEOS (5/5)`;
-      } else if (completedTasks >= 1) {
-        unlockBtn.classList.add('active');
-        unlockBtn.disabled = false;
       }
     }
   </script>
