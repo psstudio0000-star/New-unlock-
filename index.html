@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Grp Unlock</title>
+
+  <!-- Telegram WebApp & Adsgram SDKs -->
+  <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
+  <script src="https://adsgram.ai/js/adsgram.js"></script>
+
+  <!-- Firebase Compatibility SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: #0a0e17;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+      color: #ffffff;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 380px;
+      background: #121824;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 24px 20px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      color: #ffffff;
+    }
+
+    /* Progress Bar */
+    .progress-container {
+      width: 100%;
+      background: #1c2536;
+      border-radius: 10px;
+      height: 16px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+
+    .progress-bar {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #1e69ff, #00d2ff);
+      border-radius: 10px;
+      transition: width 0.4s ease;
+    }
+
+    .stats-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: #8a99ad;
+      margin-bottom: 24px;
+      font-weight: 500;
+    }
+
+    /* Buttons */
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      border: none;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-bottom: 12px;
+      transition: transform 0.1s ease, opacity 0.2s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-share {
+      background: #0088cc;
+      color: #ffffff;
+    }
+
+    .btn-unlock {
+      background: #1c2536;
+      color: #4a5d78;
+      cursor: not-allowed;
+    }
+
+    .btn-unlock.active {
+      background: #1e69ff;
+      color: #ffffff;
+      cursor: pointer;
+    }
+
+    .btn-ad {
+      background: #28a745;
+      color: #ffffff;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1e69ff;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    .toast.show {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <div class="title" id="cardTitle">CONTENT IS LOCKED</div>
+
+    <!-- Progress -->
+    <div class="progress-container">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+    
+    <div class="stats-row">
+      <span id="percentText">0% Completed</span>
+      <span id="taskText">0 / 5 Tasks</span>
+    </div>
+
+    <!-- Actions -->
+    <button class="btn btn-share" id="shareBtn">SHARE</button>
+    <button class="btn btn-ad" id="watchAdBtn">WATCH AD (+1 TASK)</button>
+    <button class="btn btn-unlock" id="unlockBtn" disabled>UNLOCK CONTENT (0/5)</button>
+  </div>
+
+  <div class="toast" id="toast">Task Updated!</div>
+
+<script>
+  // 1. CONFIGURATION
+  const TOTAL_TASKS = 5;
+  const ADSGRAM_BLOCK_ID = "39945"; // Your Block ID
+  const SHARE_URL = "https://t.me/Spinner65bot/Letplay"; // Your Telegram Bot WebApp Link
+
+  // Firebase Config
+  const firebaseConfig = {
+    apiKey: "AIzaSyDf56sM8epNqzFUhsYY3goakU4BOT8SeGk",
+    authDomain: "zone--5.firebaseapp.com",
+    databaseURL: "https://zone--5-default-rtdb.firebaseio.com",
+    projectId: "zone--5",
+    storageBucket: "zone--5.firebasestorage.app",
+    messagingSenderId: "514214882278",
+    appId: "1:514214882278:web:6bf695aa0d82d28041c427"
+  };
+
+  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  // 2. STATE
+  let userId = "guest_user";
+  let completedTasks = 0;
+  let adsgramInstance = null;
+
+  // Telegram Integration
+  if (window.Telegram && Telegram.WebApp) {
+    Telegram.WebApp.ready();
+    Telegram.WebApp.expand();
+    if (Telegram.WebApp.initDataUnsafe && Telegram.WebApp.initDataUnsafe.user) {
+      userId = "tg_" + Telegram.WebApp.initDataUnsafe.user.id;
+    }
+  }
+
+  // 3. UI UPDATER
+  function updateUI() {
+    const percentage = Math.min(100, Math.floor((completedTasks / TOTAL_TASKS) * 100));
+    document.getElementById('progressBar').style.width = percentage + "%";
+    document.getElementById('percentText').innerText = percentage + "% Completed";
+    document.getElementById('taskText').innerText = `${completedTasks} / ${TOTAL_TASKS} Tasks`;
+
+    const unlockBtn = document.getElementById('unlockBtn');
+    unlockBtn.innerText = `UNLOCK CONTENT (${completedTasks}/${TOTAL_TASKS})`;
+
+    if (completedTasks >= TOTAL_TASKS) {
+      unlockBtn.classList.add('active');
+      unlockBtn.disabled = false;
+      document.getElementById('cardTitle').innerText = "CONTENT UNLOCKED!";
+    }
+  }
+
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.innerText = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2000);
+  }
+
+  function incrementTask() {
+    if (completedTasks < TOTAL_TASKS) {
+      completedTasks++;
+      updateUI();
+      saveData();
+      showToast("Task Progress Saved!");
+    }
+  }
+
+  // 4. STORAGE
+  function saveData() {
+    localStorage.setItem('userTasks_' + userId, completedTasks);
+    if (db && userId !== "guest_user") {
+      db.ref('tasks/' + userId).set({ completedTasks });
+    }
+  }
+
+  function loadData() {
+    const local = localStorage.getItem('userTasks_' + userId);
+    if (local !== null) {
+      completedTasks = parseInt(local, 10);
+      updateUI();
+    }
+    if (db && userId !== "guest_user") {
+      db.ref('tasks/' + userId).once('value').then(snapshot => {
+        if (snapshot.exists()) {
+          completedTasks = snapshot.val().completedTasks || 0;
+          updateUI();
+        }
+      });
+    }
+  }
+
+  // 5. ADSGRAM INITIALIZATION
+  function initAdsgram() {
+    if (window.Adsgram) {
+      try {
+        adsgramInstance = window.Adsgram.init({
+          blockId: ADSGRAM_BLOCK_ID,
+          debug: true // Set to false for production
+        });
+      } catch(e) { console.warn(e); }
+    }
+  }
+
+  // 6. EVENT LISTENERS
+  document.getElementById('shareBtn').onclick = () => {
+    // Triggers Telegram native share picker
+    const shareText = "Check this out and unlock premium content!";
+    const fullShareUrl = `https://t.me/share/url?url=${encodeURIComponent(SHARE_URL)}&text=${encodeURIComponent(shareText)}`;
+    
+    if (window.Telegram && Telegram.WebApp && Telegram.WebApp.openTelegramLink) {
+      Telegram.WebApp.openTelegramLink(fullShareUrl);
+    } else {
+      window.open(fullShareUrl, '_blank');
+    }
+    
+    // Increment task when returning from share dialog
+    setTimeout(() => {
+      incrementTask();
+    }, 1000);
+  };
+
+  document.getElementById('watchAdBtn').onclick = async () => {
+    if (!adsgramInstance) initAdsgram();
+    
+    if (adsgramInstance) {
+      try {
+        const res = await adsgramInstance.show();
+        if (res && res.done) {
+          incrementTask();
+          showToast("Ad completed! +1 Task");
+        }
+      } catch(err) {
+        showToast("Ad failed to load or skipped");
+      }
+    } else {
+      showToast("Adsgram unavailable. Test inside Telegram.");
+    }
+  };
+
+  document.getElementById('unlockBtn').onclick = () => {
+    if (completedTasks >= TOTAL_TASKS) {
+      alert("Congratulations! Opening unlocked content...");
+      // Redirect to your target destination here:
+      // window.location.href = "https://your-content-link.com";
+    }
+  };
+
+  // Init
+  loadData();
+  initAdsgram();
+</script>
+</body>
+</html>
