@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Content Unlocker</title>
-  
+
   <!-- Telegram Web App SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   
@@ -132,12 +132,12 @@
       tg.expand();
     }
 
-    // App State
+    // Configuration
     let completedTasks = 0;
     const totalTasks = 5;
     const ADSGRAM_BLOCK_ID = "40172";
 
-    // Handle Ad / Share Action
+    // Handle Ad / Task Action
     function handleTask() {
       if (completedTasks >= totalTasks) return;
 
@@ -152,7 +152,7 @@
             })
             .catch((error) => {
               console.error("Adsgram Error:", error);
-              // Fallback to sharing or notice if ad doesn't load
+              // Fallback to sharing if ad fails or closes early
               shareApp();
             });
         } catch (err) {
@@ -193,10 +193,10 @@
       }
     }
 
-    // Final Unlock
+    // Final Unlock Action
     function unlockContent() {
       if (completedTasks >= totalTasks) {
-        alert("🎉 Unlocked!");
+        alert("🎉 Content Unlocked!");
       }
     }
   </script>
