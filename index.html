@@ -88,16 +88,19 @@
       opacity: 0.85;
     }
 
+    /* Option 1: Share Button */
     .btn-share {
       background-color: #0ea5e9;
       color: #ffffff;
     }
 
+    /* Option 2: Watch Ad Button */
     .btn-ad {
       background-color: #0284c7;
       color: #ffffff;
     }
 
+    /* Final Unlock Button */
     .btn-unlock {
       background-color: #1f2937;
       color: #6b7280;
@@ -109,14 +112,6 @@
       background-color: #eab308;
       color: #000000;
       cursor: pointer;
-    }
-
-    /* Subtle inline status text instead of popups */
-    .status-msg {
-      font-size: 0.8rem;
-      color: #ef4444;
-      margin-bottom: 10px;
-      min-height: 18px;
     }
   </style>
 </head>
@@ -134,11 +129,13 @@
       <span id="task-count">0 / 5 Tasks</span>
     </div>
 
-    <!-- Non-intrusive status message area -->
-    <div id="status-msg" class="status-msg"></div>
-
+    <!-- Task Option 1: Share Link -->
     <button class="btn btn-share" onclick="handleShareTask()">SHARE</button>
+
+    <!-- Task Option 2: Watch Video Ad -->
     <button class="btn btn-ad" onclick="playAd()">WATCH AD TO UNLOCK</button>
+
+    <!-- Final Unlock Action -->
     <button id="unlock-btn" class="btn btn-unlock" disabled onclick="unlockContent()">UNLOCK VIDEOS (0/5)</button>
   </div>
 
@@ -154,15 +151,11 @@
     let completedTasks = 0;
     const totalTasks = 5;
     const ADSGRAM_BLOCK_ID = "40172";
-    const DIRECT_SHARE_URL = "https://t.me/share/url?url=%20JOIN%20THIS%20AMAZING%20GROUP%20%F0%9F%A5%B5%20-%20https%3A%2F%2Ft.me%2F%2BIReYrDe7TbowZGNI";
+    
+    // Exact updated share URL
+    const DIRECT_SHARE_URL = "https://t.me/share/url?url=%20JOIN%20THIS%20AMAZING%20GROUP%20%F0%9F%A5%B5%20-%20https%3A%2F%2Ft.me%2F%2BIReYrDe7TbowZGNl";
 
-    function showStatus(text) {
-      const msgElem = document.getElementById("status-msg");
-      msgElem.innerText = text;
-      setTimeout(() => { msgElem.innerText = ""; }, 3000); // Clear after 3 seconds
-    }
-
-    // 1. Share Action
+    // 1. Share Option Action
     function handleShareTask() {
       if (completedTasks >= totalTasks) return;
 
@@ -176,7 +169,7 @@
       updateUI();
     }
 
-    // 2. Watch Ad Action (Popups Removed)
+    // 2. Watch Ad Option Action
     function playAd() {
       if (completedTasks >= totalTasks) return;
 
@@ -191,23 +184,20 @@
             })
             .catch((error) => {
               console.error("Adsgram Error:", error);
-              // Silent log or subtle status instead of alert popup
-              showStatus("Ad closed early or unavailable. Try again!");
+              alert("Ad closed early or temporarily unavailable. Please try again!");
             });
         } catch (err) {
           console.error(err);
         }
       } else {
-        showStatus("Loading ad network...");
+        alert("Adsgram SDK is loading or blocked by AdBlocker.");
       }
     }
 
     // 3. Final Unlock Check
     function unlockContent() {
       if (completedTasks >= totalTasks) {
-        showStatus("🎉 Unlocking videos...");
-        // Place your redirect link here if needed:
-        // window.location.href = "YOUR_VIDEO_URL";
+        alert("🎉 All tasks completed! Unlocking videos now...");
       }
     }
 
