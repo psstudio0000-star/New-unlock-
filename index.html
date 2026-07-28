@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Content Unlocker</title>
   
-  <!-- 1. Telegram Web App SDK -->
+  <!-- Telegram Web App SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   
-  <!-- 2. Adsgram SDK -->
+  <!-- Adsgram SDK -->
   <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
 
   <style>
@@ -20,7 +20,7 @@
     }
 
     body {
-      background-color: #0f172a;
+      background-color: #000000;
       color: #ffffff;
       display: flex;
       justify-content: center;
@@ -30,64 +30,78 @@
     }
 
     .card {
-      background: #1e293b;
-      border-radius: 16px;
-      padding: 24px;
+      background: #111827;
+      border-radius: 20px;
+      padding: 28px 20px;
       width: 100%;
-      max-width: 400px;
+      max-width: 380px;
       text-align: center;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      border: 1px solid #1f2937;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
     }
 
     h2 {
-      font-size: 1.5rem;
-      margin-bottom: 20px;
-      letter-spacing: 1px;
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 24px;
+      letter-spacing: 0.5px;
     }
 
-    .progress-bar {
+    .progress-bar-container {
+      width: 100%;
+      height: 24px;
+      background-color: #1f2937;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background-color: #0284c7;
+      transition: width 0.3s ease;
+    }
+
+    .progress-info {
       display: flex;
       justify-content: space-between;
-      font-size: 0.9rem;
-      color: #94a3b8;
-      margin-bottom: 20px;
+      font-size: 0.85rem;
+      color: #9ca3af;
+      margin-bottom: 24px;
+      padding: 0 2px;
     }
 
     .btn {
       width: 100%;
       padding: 14px;
       border: none;
-      border-radius: 10px;
-      font-weight: bold;
+      border-radius: 12px;
+      font-weight: 600;
       font-size: 0.95rem;
       cursor: pointer;
       margin-bottom: 12px;
-      transition: opacity 0.2s;
+      transition: background-color 0.2s, opacity 0.2s;
     }
 
     .btn:active {
-      opacity: 0.8;
+      opacity: 0.85;
     }
 
     .btn-share {
-      background-color: #0284c7;
-      color: white;
-    }
-
-    .btn-ad {
-      background-color: #22c55e;
-      color: white;
+      background-color: #0ea5e9;
+      color: #ffffff;
     }
 
     .btn-unlock {
-      background-color: #334155;
-      color: #64748b;
+      background-color: #1f2937;
+      color: #6b7280;
       cursor: not-allowed;
     }
 
     .btn-unlock.active {
       background-color: #eab308;
-      color: #000;
+      color: #000000;
       cursor: pointer;
     }
   </style>
@@ -95,20 +109,23 @@
 <body>
 
   <div class="card">
-    <h2>CONTENT IS LOCKED</h2>
+    <h2>HIDDEN CAM IS LOCKED</h2>
 
-    <div class="progress-bar">
+    <div class="progress-bar-container">
+      <div id="progress-fill" class="progress-bar-fill"></div>
+    </div>
+
+    <div class="progress-info">
       <span id="progress-percent">0% Completed</span>
       <span id="task-count">0 / 5 Tasks</span>
     </div>
 
-    <button class="btn btn-share" onclick="shareApp()">STEP 1: SHARE TO UNLOCK</button>
-    <button class="btn btn-ad" onclick="watchAd()">STEP 2: WATCH AD (+1 TASK)</button>
-    <button id="unlock-btn" class="btn btn-unlock" disabled onclick="unlockContent()">UNLOCK CONTENT (0/5)</button>
+    <button class="btn btn-share" onclick="handleTask()">SHARE</button>
+    <button id="unlock-btn" class="btn btn-unlock" disabled onclick="unlockContent()">UNLOCK VIDEOS (0/5)</button>
   </div>
 
   <script>
-    // Initialize Telegram SDK
+    // Initialize Telegram WebApp SDK
     let tg = window.Telegram?.WebApp;
     if (tg) {
       tg.ready();
@@ -120,60 +137,55 @@
     const totalTasks = 5;
     const ADSGRAM_BLOCK_ID = "40172";
 
-    // Watch Ad Function
-    function watchAd() {
-      // 1. Check if inside Telegram
-      if (!tg || !tg.initData) {
-        alert("Please open this Mini App directly inside Telegram to watch ads!");
-        return;
-      }
+    // Handle Ad / Share Action
+    function handleTask() {
+      if (completedTasks >= totalTasks) return;
 
-      // 2. Check if Adsgram SDK was blocked or failed to load
-      if (typeof window.Adsgram === "undefined") {
-        alert("Adsgram SDK is still loading or blocked by Private DNS/AdBlock. Disable AdBlock and try again.");
-        return;
-      }
+      if (typeof window.Adsgram !== "undefined") {
+        try {
+          const AdController = window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID });
 
-      // 3. Initialize and trigger ad on demand
-      try {
-        const AdController = window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID });
-
-        AdController.show()
-          .then((result) => {
-            completedTasks++;
-            updateUI();
-            alert("Task completed! (+1)");
-          })
-          .catch((error) => {
-            console.error("Adsgram Error:", error);
-            alert("Ad couldn't load: " + (error.description || error.error || JSON.stringify(error)));
-          });
-      } catch (err) {
-        console.error(err);
-        alert("Error initializing ad: " + err.message);
+          AdController.show()
+            .then((result) => {
+              completedTasks++;
+              updateUI();
+            })
+            .catch((error) => {
+              console.error("Adsgram Error:", error);
+              // Fallback to sharing or notice if ad doesn't load
+              shareApp();
+            });
+        } catch (err) {
+          shareApp();
+        }
+      } else {
+        shareApp();
       }
     }
 
-    // Share logic
+    // Share logic fallback
     function shareApp() {
       if (tg) {
-        const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent('Check out this Mini App!')}`;
+        const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent('Unlock hidden videos now!')}`;
         tg.openTelegramLink(shareUrl);
+        completedTasks++;
+        updateUI();
       } else {
-        alert("Open inside Telegram to share.");
+        alert("Please open this app inside Telegram.");
       }
     }
 
-    // Update progress bar & button state
+    // Update Progress Bar & UI
     function updateUI() {
       if (completedTasks > totalTasks) completedTasks = totalTasks;
 
       const percent = Math.round((completedTasks / totalTasks) * 100);
       document.getElementById('progress-percent').innerText = `${percent}% Completed`;
       document.getElementById('task-count').innerText = `${completedTasks} / ${totalTasks} Tasks`;
+      document.getElementById('progress-fill').style.width = `${percent}%`;
 
       const unlockBtn = document.getElementById('unlock-btn');
-      unlockBtn.innerText = `UNLOCK CONTENT (${completedTasks}/${totalTasks})`;
+      unlockBtn.innerText = `UNLOCK VIDEOS (${completedTasks}/${totalTasks})`;
 
       if (completedTasks >= totalTasks) {
         unlockBtn.classList.add('active');
@@ -181,12 +193,13 @@
       }
     }
 
-    // Final Unlock action
+    // Final Unlock
     function unlockContent() {
       if (completedTasks >= totalTasks) {
-        alert("Congratulations! Content Unlocked 🎉");
+        alert("🎉 Unlocked!");
       }
     }
   </script>
+
 </body>
 </html>
