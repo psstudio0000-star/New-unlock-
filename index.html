@@ -7,9 +7,6 @@
 
   <!-- Telegram Web App SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  
-  <!-- Adsgram SDK -->
-  <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
 
   <style>
     * {
@@ -80,22 +77,33 @@
       font-weight: 600;
       font-size: 0.95rem;
       cursor: pointer;
-      transition: background-color 0.2s, opacity 0.2s;
+      margin-bottom: 12px;
+      transition: background-color 0.2s, opacity 0.2s, transform 0.1s;
     }
 
     .btn:active {
       opacity: 0.85;
+      transform: scale(0.98);
     }
 
-    /* Watch Ad Button */
-    .btn-ad {
-      background-color: #0284c7;
+    /* Top Button: Share */
+    .btn-share {
+      background-color: #0ea5e9;
       color: #ffffff;
     }
 
-    .btn-ad.completed {
+    /* Bottom Button: Unlock (Disabled/Active states) */
+    .btn-unlock {
+      background-color: #1f2937;
+      color: #6b7280;
+      cursor: not-allowed;
+      margin-top: 4px;
+    }
+
+    .btn-unlock.active {
       background-color: #eab308;
       color: #000000;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -113,8 +121,11 @@
       <span id="task-count">0 / 5 Tasks</span>
     </div>
 
-    <!-- Watch Video Ad / Unlock Button -->
-    <button id="ad-btn" class="btn btn-ad" onclick="playAd()">UNLOCK Videos (0/5)</button>
+    <!-- Top Action: Share Link -->
+    <button id="share-btn" class="btn btn-share" onclick="handleShareTask()">SHARE TO UNLOCK (0/5)</button>
+
+    <!-- Bottom Action: Final Unlock -->
+    <button id="unlock-btn" class="btn btn-unlock" disabled onclick="unlockContent()">UNLOCK VIDEOS (0/5)</button>
   </div>
 
   <script>
@@ -128,39 +139,29 @@
     // Configuration
     let completedTasks = 0;
     const totalTasks = 5;
-    const ADSGRAM_BLOCK_ID = "40172";
 
-    // Watch Ad Action
-    function playAd() {
-      if (completedTasks >= totalTasks) {
-        unlockContent();
-        return;
-      }
+    // Direct Telegram Share Link
+    const DIRECT_SHARE_URL = "https://t.me/share/url?url=%20JOIN%20THIS%20AMAZING%20GROUP%20%F0%9F%A5%B5%20-%20https%3A%2F%2Ft.me%2F%2BIReYrDe7TbowZGNl";
 
-      if (typeof window.Adsgram !== "undefined") {
-        try {
-          const AdController = window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID });
+    // Top Button Action: Share
+    function handleShareTask() {
+      if (completedTasks >= totalTasks) return;
 
-          AdController.show()
-            .then((result) => {
-              completedTasks++;
-              updateUI();
-            })
-            .catch((error) => {
-              console.error("Adsgram Error:", error);
-              alert("Ad closed early or temporarily unavailable. Please try again!");
-            });
-        } catch (err) {
-          console.error(err);
-        }
+      if (tg) {
+        tg.openTelegramLink(DIRECT_SHARE_URL);
       } else {
-        alert("Adsgram SDK is loading or blocked by AdBlocker.");
+        window.open(DIRECT_SHARE_URL, '_blank');
       }
+
+      completedTasks++;
+      updateUI();
     }
 
-    // Final Unlock Action
+    // Bottom Button Action: Unlock
     function unlockContent() {
-      alert("🎉 All tasks completed! Unlocking videos now...");
+      if (completedTasks >= totalTasks) {
+        alert("🎉 All tasks completed! Unlocking videos now...");
+      }
     }
 
     // Update UI Progress
@@ -172,14 +173,20 @@
       document.getElementById('task-count').innerText = `${completedTasks} / ${totalTasks} Tasks`;
       document.getElementById('progress-fill').style.width = `${percent}%`;
 
-      const adBtn = document.getElementById('ad-btn');
+      const shareBtn = document.getElementById('share-btn');
+      const unlockBtn = document.getElementById('unlock-btn');
 
       if (completedTasks >= totalTasks) {
-        adBtn.classList.add('completed');
-        adBtn.innerText = `🎉 UNLOCKED! (5/5)`;
-        unlockContent();
+        shareBtn.innerText = `COMPLETED (5/5)`;
+        shareBtn.disabled = true;
+        shareBtn.style.opacity = "0.6";
+
+        unlockBtn.classList.add('active');
+        unlockBtn.disabled = false;
+        unlockBtn.innerText = `🎉 UNLOCK VIDEOS NOW`;
       } else {
-        adBtn.innerText = `UNLOCK Videos (${completedTasks}/${totalTasks})`;
+        shareBtn.innerText = `SHARE TO UNLOCK (${completedTasks}/${totalTasks})`;
+        unlockBtn.innerText = `UNLOCK VIDEOS (${completedTasks}/${totalTasks})`;
       }
     }
   </script>
