@@ -80,7 +80,6 @@
       font-weight: 600;
       font-size: 0.95rem;
       cursor: pointer;
-      margin-bottom: 12px;
       transition: background-color 0.2s, opacity 0.2s;
     }
 
@@ -88,30 +87,15 @@
       opacity: 0.85;
     }
 
-    /* Option 1: Share Button */
-    .btn-share {
-      background-color: #0ea5e9;
-      color: #ffffff;
-    }
-
-    /* Option 2: Watch Ad Button */
+    /* Watch Ad Button */
     .btn-ad {
       background-color: #0284c7;
       color: #ffffff;
     }
 
-    /* Final Unlock Button */
-    .btn-unlock {
-      background-color: #1f2937;
-      color: #6b7280;
-      cursor: not-allowed;
-      margin-top: 8px;
-    }
-
-    .btn-unlock.active {
+    .btn-ad.completed {
       background-color: #eab308;
       color: #000000;
-      cursor: pointer;
     }
   </style>
 </head>
@@ -129,14 +113,8 @@
       <span id="task-count">0 / 5 Tasks</span>
     </div>
 
-    <!-- Task Option 1: Share Link -->
-    <button class="btn btn-share" onclick="handleShareTask()">SHARE</button>
-
-    <!-- Task Option 2: Watch Video Ad -->
-    <button class="btn btn-ad" onclick="playAd()">UNLOCK Videos (0/5)</button>
-
-    <!-- Final Unlock Action -->
-    <button id="unlock-btn" class="btn btn-unlock" disabled onclick="unlockContent()">UNLOCK VIDEOS (0/5)</button>
+    <!-- Watch Video Ad / Unlock Button -->
+    <button id="ad-btn" class="btn btn-ad" onclick="playAd()">UNLOCK Videos (0/5)</button>
   </div>
 
   <script>
@@ -151,27 +129,13 @@
     let completedTasks = 0;
     const totalTasks = 5;
     const ADSGRAM_BLOCK_ID = "40172";
-    
-    // Exact updated share URL
-    const DIRECT_SHARE_URL = "https://t.me/share/url?url=%20JOIN%20THIS%20AMAZING%20GROUP%20%F0%9F%A5%B5%20-%20https%3A%2F%2Ft.me%2F%2BIReYrDe7TbowZGNl";
 
-    // 1. Share Option Action
-    function handleShareTask() {
-      if (completedTasks >= totalTasks) return;
-
-      if (tg) {
-        tg.openTelegramLink(DIRECT_SHARE_URL);
-      } else {
-        window.open(DIRECT_SHARE_URL, '_blank');
-      }
-
-      completedTasks++;
-      updateUI();
-    }
-
-    // 2. Watch Ad Option Action
+    // Watch Ad Action
     function playAd() {
-      if (completedTasks >= totalTasks) return;
+      if (completedTasks >= totalTasks) {
+        unlockContent();
+        return;
+      }
 
       if (typeof window.Adsgram !== "undefined") {
         try {
@@ -194,11 +158,9 @@
       }
     }
 
-    // 3. Final Unlock Check
+    // Final Unlock Action
     function unlockContent() {
-      if (completedTasks >= totalTasks) {
-        alert("🎉 All tasks completed! Unlocking videos now...");
-      }
+      alert("🎉 All tasks completed! Unlocking videos now...");
     }
 
     // Update UI Progress
@@ -210,13 +172,14 @@
       document.getElementById('task-count').innerText = `${completedTasks} / ${totalTasks} Tasks`;
       document.getElementById('progress-fill').style.width = `${percent}%`;
 
-      const unlockBtn = document.getElementById('unlock-btn');
-      unlockBtn.innerText = `UNLOCK VIDEOS (${completedTasks}/${totalTasks})`;
+      const adBtn = document.getElementById('ad-btn');
 
       if (completedTasks >= totalTasks) {
-        unlockBtn.classList.add('active');
-        unlockBtn.disabled = false;
-        unlockBtn.innerText = `🎉 UNLOCK VIDEOS (5/5)`;
+        adBtn.classList.add('completed');
+        adBtn.innerText = `🎉 UNLOCKED! (5/5)`;
+        unlockContent();
+      } else {
+        adBtn.innerText = `UNLOCK Videos (${completedTasks}/${totalTasks})`;
       }
     }
   </script>
