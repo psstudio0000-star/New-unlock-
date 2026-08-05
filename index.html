@@ -7,6 +7,9 @@
 
   <!-- Telegram WebApp SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  
+  <!-- Adsgram SDK -->
+  <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
 
   <style>
     :root {
@@ -130,6 +133,16 @@
       transform: scale(0.98);
     }
 
+    .btn-ad {
+      background: #f59e0b;
+      color: #ffffff;
+    }
+
+    .btn-ad:active {
+      background: #d97706;
+      transform: scale(0.98);
+    }
+
     .btn-unlock {
       background: #334155;
       color: #64748b;
@@ -163,13 +176,13 @@
 
   <div class="container">
     <div class="icon-header">🔐</div>
-    <h1 id="group-title">THE GROUP IS LOCKED 🔐</h1>
-    <p class="subtitle">Share 5 times below to unlock instant access</p>
+    <h1 id="group-title">GROUP IS LOCKED</h1>
+    <p class="subtitle">Complete 5 tasks below to unlock instant access</p>
 
     <!-- Progress Status -->
     <div class="progress-box">
       <div class="progress-header">
-        <span id="task-count">0 / 5 Shares</span>
+        <span id="task-count">0 / 5 Tasks</span>
         <span id="progress-percent">0% Completed</span>
       </div>
       <div class="progress-bar-bg">
@@ -177,9 +190,13 @@
       </div>
     </div>
 
-    <!-- Share Button -->
+    <!-- Task Buttons -->
     <button class="action-btn btn-share" onclick="handleShareTask()">
-      <span>📤</span> Share to Telegram Group (+1 Share)
+      <span>📤</span> Share to Telegram Group (+1 Task)
+    </button>
+
+    <button class="action-btn btn-ad" onclick="playAd()">
+      <span>🎬</span> Watch Short Video Ad (+1 Task)
     </button>
 
     <div class="divider"></div>
@@ -194,14 +211,15 @@
     // Configuration
     let completedTasks = 0;
     const totalTasks = 5;
+    const ADSGRAM_BLOCK_ID = "40172";
     
-    // Unlocked Group Link
+    // Target private channel/group link unlocked after tasks completion
     const TARGET_GROUP_LINK = "https://t.me/+cs76HfenGYI4MWQ1";
     
-    // Direct URL-Encoded Telegram Share Link
-    const DIRECT_SHARE_URL = "https://t.me/share/url?url=https%3A%2F%2Ft.me%2F%2Bcs76HfenGYI4MWQ1&text=JOIN%20THIS%20AMAZING%20GROUP%20%F0%9F%A5%B5";
+    // Direct share URL for task
+    const DIRECT_SHARE_URL = "https://t.me/share/url?url=%20JOIN%20THIS%20AMAZING%20GROUP%20%F0%9F%A5%B5%20-%20https%3A%2F%2Ft.me%2F%2Bcs76HfenGYI4MWQ1";
 
-    // Telegram WebApp Object
+    // Telegram WebApp Object Initialization
     const tg = window.Telegram?.WebApp;
     if (tg) {
       tg.ready();
@@ -215,7 +233,7 @@
       document.getElementById('group-title').innerText = "MOM SON SPECIAL 🔞";
     }
 
-    // Share Action
+    // 1. Share Option Action
     function handleShareTask() {
       if (completedTasks >= totalTasks) return;
 
@@ -229,7 +247,32 @@
       updateUI();
     }
 
-    // Unlock Group Action
+    // 2. Watch Ad Option Action
+    function playAd() {
+      if (completedTasks >= totalTasks) return;
+
+      if (typeof window.Adsgram !== "undefined") {
+        try {
+          const AdController = window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID });
+
+          AdController.show()
+            .then((result) => {
+              completedTasks++;
+              updateUI();
+            })
+            .catch((error) => {
+              console.error("Adsgram Error:", error);
+              alert("Ad closed early or temporarily unavailable. Please try again!");
+            });
+        } catch (err) {
+          console.error(err);
+        }
+      } else {
+        alert("Adsgram SDK is loading or blocked by AdBlocker.");
+      }
+    }
+
+    // 3. Final Unlock Action (Opens target link after completing 5 tasks)
     function unlockContent() {
       if (completedTasks >= totalTasks) {
         if (tg && tg.openTelegramLink) {
@@ -238,17 +281,17 @@
           window.open(TARGET_GROUP_LINK, '_blank');
         }
       } else {
-        alert(`Please complete all 5 shares first! (${completedTasks}/5 completed)`);
+        alert(`Please complete all 5 tasks first! (${completedTasks}/5 completed)`);
       }
     }
 
-    // Progress UI Update
+    // Update UI Elements and Progress Bar
     function updateUI() {
       if (completedTasks > totalTasks) completedTasks = totalTasks;
 
       const percent = Math.round((completedTasks / totalTasks) * 100);
       document.getElementById('progress-percent').innerText = `${percent}% Completed`;
-      document.getElementById('task-count').innerText = `${completedTasks} / ${totalTasks} Shares`;
+      document.getElementById('task-count').innerText = `${completedTasks} / ${totalTasks} Tasks`;
       document.getElementById('progress-fill').style.width = `${percent}%`;
 
       const unlockBtn = document.getElementById('unlock-btn');
