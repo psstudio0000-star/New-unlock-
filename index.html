@@ -152,14 +152,17 @@
     const totalTasks = 5;
     const ADSGRAM_BLOCK_ID = "40172";
     
-    // Exact updated share URL
+    // Telegram Share URL for task completion
     const DIRECT_SHARE_URL = "https://t.me/share/url?url=%20JOIN%20THIS%20AMAZING%20GROUP%20%F0%9F%A5%B5%20-%20https%3A%2F%2Ft.me%2F%2BIReYrDe7TbowZGNl";
+
+    // Final Link to redirect after completing 5 tasks
+    const FINAL_DESTINATION_URL = "https://t.me/+IReYrDe7TbowZGNl";
 
     // 1. Share Option Action
     function handleShareTask() {
       if (completedTasks >= totalTasks) return;
 
-      if (tg) {
+      if (tg && tg.openTelegramLink) {
         tg.openTelegramLink(DIRECT_SHARE_URL);
       } else {
         window.open(DIRECT_SHARE_URL, '_blank');
@@ -194,10 +197,14 @@
       }
     }
 
-    // 3. Final Unlock Check
+    // 3. Final Unlock Action - Redirects once all ads/tasks are done
     function unlockContent() {
       if (completedTasks >= totalTasks) {
-        alert("🎉 All tasks completed! Unlocking videos now...");
+        if (tg && tg.openTelegramLink && FINAL_DESTINATION_URL.includes("t.me")) {
+          tg.openTelegramLink(FINAL_DESTINATION_URL);
+        } else {
+          window.location.href = FINAL_DESTINATION_URL;
+        }
       }
     }
 
@@ -216,7 +223,7 @@
       if (completedTasks >= totalTasks) {
         unlockBtn.classList.add('active');
         unlockBtn.disabled = false;
-        unlockBtn.innerText = `🎉 UNLOCK VIDEOS (5/5)`;
+        unlockBtn.innerText = `🎉 UNLOCK VIDEOS NOW`;
       }
     }
   </script>
