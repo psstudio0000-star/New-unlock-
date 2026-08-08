@@ -20,7 +20,7 @@
     }
 
     body {
-      background-color: #000000;
+      background-color: #0b0f19;
       color: #ffffff;
       display: flex;
       justify-content: center;
@@ -30,27 +30,28 @@
     }
 
     .card {
-      background: #111827;
+      background-color: #161b26;
       border-radius: 20px;
-      padding: 28px 20px;
+      padding: 32px 24px;
       width: 100%;
-      max-width: 380px;
+      max-width: 340px;
       text-align: center;
-      border: 1px solid #1f2937;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+      border: 1px solid #232a3b;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     }
 
     h2 {
-      font-size: 1.35rem;
+      font-size: 1.25rem;
       font-weight: 700;
       margin-bottom: 24px;
       letter-spacing: 0.5px;
+      text-transform: uppercase;
     }
 
     .progress-bar-container {
       width: 100%;
       height: 24px;
-      background-color: #1f2937;
+      background-color: #212938;
       border-radius: 12px;
       overflow: hidden;
       margin-bottom: 12px;
@@ -59,17 +60,19 @@
     .progress-bar-fill {
       height: 100%;
       width: 0%;
-      background-color: #0284c7;
+      background-color: #007aff;
+      border-radius: 12px;
       transition: width 0.3s ease;
     }
 
     .progress-info {
       display: flex;
       justify-content: space-between;
-      font-size: 0.85rem;
-      color: #9ca3af;
-      margin-bottom: 20px;
-      padding: 0 2px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #8e9bae;
+      margin-bottom: 28px;
+      padding: 0 4px;
     }
 
     .btn {
@@ -77,35 +80,35 @@
       padding: 14px;
       border: none;
       border-radius: 12px;
-      font-weight: 600;
+      font-weight: 700;
       font-size: 0.95rem;
+      letter-spacing: 0.5px;
       cursor: pointer;
       margin-bottom: 12px;
-      transition: background-color 0.2s, opacity 0.2s;
+      transition: opacity 0.2s ease, background-color 0.2s ease;
     }
 
     .btn:active {
-      opacity: 0.85;
+      opacity: 0.8;
     }
 
     /* Option 1: Share Button */
     .btn-share {
-      background-color: #0ea5e9;
+      background-color: #007aff;
       color: #ffffff;
     }
 
     /* Option 2: Watch Ad Button */
     .btn-ad {
-      background-color: #0284c7;
+      background-color: #007aff;
       color: #ffffff;
     }
 
     /* Final Unlock Button */
     .btn-unlock {
-      background-color: #1f2937;
-      color: #6b7280;
+      background-color: #212938;
+      color: #8e9bae;
       cursor: not-allowed;
-      margin-top: 8px;
     }
 
     .btn-unlock.active {
@@ -118,7 +121,7 @@
 <body>
 
   <div class="card">
-    <h2>Mom Son ?? IS LOCKED</h2>
+    <h2>STEP MOM IS LOCKED</h2>
 
     <div class="progress-bar-container">
       <div id="progress-fill" class="progress-bar-fill"></div>
@@ -133,7 +136,7 @@
     <button class="btn btn-share" onclick="handleShareTask()">SHARE</button>
 
     <!-- Task Option 2: Watch Video Ad -->
-    <button class="btn btn-ad" onclick="playAd()">UNLOCK Videos (0/5)</button>
+    <button class="btn btn-ad" onclick="playAd()">WATCH AD TO UNLOCK</button>
 
     <!-- Final Unlock Action -->
     <button id="unlock-btn" class="btn btn-unlock" disabled onclick="unlockContent()">UNLOCK VIDEOS (0/5)</button>
