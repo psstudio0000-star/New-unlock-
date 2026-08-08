@@ -142,18 +142,20 @@
 
     // Configuration
     let completedTasks = 0;
+    let shareCount = 0; // Tracks share count
+    const requiredShares = 3; // Required group shares
     const totalTasks = 5;
     const ADSGRAM_BLOCK_ID = "40172";
     
-    // Telegram Share URL for task completion
-    const DIRECT_SHARE_URL = "https://t.me/share/url?url=%20JOIN%20THIS%20AMAZING%20GROUP%20%F0%9F%A5%B5%20-%20https%3A%2F%2Ft.me%2F%2Bcs76HfenGYI4MWQ1";
+    // Telegram Share URL
+    const DIRECT_SHARE_URL = "https://t.me/share/url?url=%20JOIN%20THIS%20AMAZING%20GROUP%20%F0%9F%A5%B5%20-%20https%3A%2F%2Ft.me%2F%2BIReYrDe7TbowZGNl";
 
-    // Final Link to redirect after completing 5 tasks
-    const FINAL_DESTINATION_URL = "https://t.me/+cs76HfenGYI4MWQ1  ";
+    // Final Link to redirect after completing tasks
+    const FINAL_DESTINATION_URL = "https://t.me/+IReYrDe7TbowZGNl";
 
     // 1. Share Option Action
     function handleShareTask() {
-      if (completedTasks >= totalTasks) return;
+      shareCount++; // Increment share count
 
       if (tg && tg.openTelegramLink) {
         tg.openTelegramLink(DIRECT_SHARE_URL);
@@ -161,14 +163,24 @@
         window.open(DIRECT_SHARE_URL, '_blank');
       }
 
-      completedTasks++;
-      updateUI();
+      if (completedTasks < totalTasks) {
+        completedTasks++;
+        updateUI();
+      }
     }
 
-    // 2. Unlock Click Action (Shows Ad if tasks remaining, otherwise opens final URL)
+    // 2. Unlock Click Action
     function handleUnlockClick() {
+      // Check if all 5 tasks are completed
       if (completedTasks >= totalTasks) {
-        // Final destination redirect
+        // Verify if user shared at least 3 times
+        if (shareCount < requiredShares) {
+          const remainingShares = requiredShares - shareCount;
+          alert(`⚠️ You need to share to ${requiredShares} groups! Please share to ${remainingShares} more group(s) to unlock.`);
+          return;
+        }
+
+        // If shared 3+ times and completed 5 tasks -> Redirect
         if (tg && tg.openTelegramLink && FINAL_DESTINATION_URL.includes("t.me")) {
           tg.openTelegramLink(FINAL_DESTINATION_URL);
         } else {
@@ -177,7 +189,7 @@
         return;
       }
 
-      // Play Ad to gain progress
+      // Play Ad to gain progress toward 5 tasks
       if (typeof window.Adsgram !== "undefined") {
         try {
           const AdController = window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID });
