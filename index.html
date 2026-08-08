@@ -7,6 +7,9 @@
 
   <!-- Telegram Web App SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  
+  <!-- Adsgram SDK -->
+  <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
 
   <style>
     * {
@@ -98,22 +101,20 @@
     /* Target Action: Unlock Button */
     .btn-unlock {
       background-color: #212938;
-      color: #8e9bae;
-      cursor: not-allowed;
+      color: #ffffff;
       margin-bottom: 0;
     }
 
     .btn-unlock.active {
       background-color: #eab308;
       color: #000000;
-      cursor: pointer;
     }
   </style>
 </head>
 <body>
 
   <div class="card">
-    <h2>STEP MOM 🥵 IS LOCKED</h2>
+    <h2>STEP MOM IS LOCKED</h2>
 
     <div class="progress-bar-container">
       <div id="progress-fill" class="progress-bar-fill"></div>
@@ -127,8 +128,8 @@
     <!-- Option 1: Share Link -->
     <button class="btn btn-share" onclick="handleShareTask()">SHARE</button>
 
-    <!-- Option 2: Final Unlock Action (Increments or Redirects when done) -->
-    <button id="unlock-btn" class="btn btn-unlock" disabled onclick="unlockContent()">UNLOCK VIDEOS (0/5)</button>
+    <!-- Option 2: Unlock / Watch Ad Button -->
+    <button id="unlock-btn" class="btn btn-unlock" onclick="handleUnlockClick()">UNLOCK VIDEOS (0/5)</button>
   </div>
 
   <script>
@@ -142,6 +143,7 @@
     // Configuration
     let completedTasks = 0;
     const totalTasks = 5;
+    const ADSGRAM_BLOCK_ID = "40172";
     
     // Telegram Share URL for task completion
     const DIRECT_SHARE_URL = "https://t.me/share/url?url=%20JOIN%20THIS%20AMAZING%20GROUP%20%F0%9F%A5%B5%20-%20https%3A%2F%2Ft.me%2F%2BIReYrDe7TbowZGNl";
@@ -163,14 +165,37 @@
       updateUI();
     }
 
-    // 2. Final Unlock Action - Redirects once all tasks are completed
-    function unlockContent() {
+    // 2. Unlock Click Action (Shows Ad if tasks remaining, otherwise opens final URL)
+    function handleUnlockClick() {
       if (completedTasks >= totalTasks) {
+        // Final destination redirect
         if (tg && tg.openTelegramLink && FINAL_DESTINATION_URL.includes("t.me")) {
           tg.openTelegramLink(FINAL_DESTINATION_URL);
         } else {
           window.location.href = FINAL_DESTINATION_URL;
         }
+        return;
+      }
+
+      // Play Ad to gain progress
+      if (typeof window.Adsgram !== "undefined") {
+        try {
+          const AdController = window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID });
+
+          AdController.show()
+            .then((result) => {
+              completedTasks++;
+              updateUI();
+            })
+            .catch((error) => {
+              console.error("Adsgram Error:", error);
+              alert("Ad closed early or temporarily unavailable. Please try again!");
+            });
+        } catch (err) {
+          console.error(err);
+        }
+      } else {
+        alert("Adsgram SDK is loading or blocked by AdBlocker.");
       }
     }
 
@@ -187,7 +212,6 @@
 
       if (completedTasks >= totalTasks) {
         unlockBtn.classList.add('active');
-        unlockBtn.disabled = false;
         unlockBtn.innerText = `🎉 UNLOCK VIDEOS NOW`;
       } else {
         unlockBtn.innerText = `UNLOCK VIDEOS (${completedTasks}/${totalTasks})`;
