@@ -7,9 +7,6 @@
 
   <!-- Telegram Web App SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  
-  <!-- Adsgram SDK -->
-  <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
 
   <style>
     * {
@@ -92,23 +89,18 @@
       opacity: 0.8;
     }
 
-    /* Option 1: Share Button */
+    /* Primary Action: Share Button */
     .btn-share {
       background-color: #007aff;
       color: #ffffff;
     }
 
-    /* Option 2: Watch Ad Button */
-    .btn-ad {
-      background-color: #007aff;
-      color: #ffffff;
-    }
-
-    /* Final Unlock Button */
+    /* Target Action: Unlock Button */
     .btn-unlock {
       background-color: #212938;
       color: #8e9bae;
       cursor: not-allowed;
+      margin-bottom: 0;
     }
 
     .btn-unlock.active {
@@ -132,13 +124,10 @@
       <span id="task-count">0 / 5 Tasks</span>
     </div>
 
-    <!-- Task Option 1: Share Link -->
+    <!-- Option 1: Share Link -->
     <button class="btn btn-share" onclick="handleShareTask()">SHARE</button>
 
-    <!-- Task Option 2: Watch Video Ad -->
-    <button class="btn btn-ad" onclick="playAd()">WATCH AD TO UNLOCK</button>
-
-    <!-- Final Unlock Action -->
+    <!-- Option 2: Final Unlock Action (Increments or Redirects when done) -->
     <button id="unlock-btn" class="btn btn-unlock" disabled onclick="unlockContent()">UNLOCK VIDEOS (0/5)</button>
   </div>
 
@@ -153,7 +142,6 @@
     // Configuration
     let completedTasks = 0;
     const totalTasks = 5;
-    const ADSGRAM_BLOCK_ID = "40172";
     
     // Telegram Share URL for task completion
     const DIRECT_SHARE_URL = "https://t.me/share/url?url=%20JOIN%20THIS%20AMAZING%20GROUP%20%F0%9F%A5%B5%20-%20https%3A%2F%2Ft.me%2F%2BIReYrDe7TbowZGNl";
@@ -175,32 +163,7 @@
       updateUI();
     }
 
-    // 2. Watch Ad Option Action
-    function playAd() {
-      if (completedTasks >= totalTasks) return;
-
-      if (typeof window.Adsgram !== "undefined") {
-        try {
-          const AdController = window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID });
-
-          AdController.show()
-            .then((result) => {
-              completedTasks++;
-              updateUI();
-            })
-            .catch((error) => {
-              console.error("Adsgram Error:", error);
-              alert("Ad closed early or temporarily unavailable. Please try again!");
-            });
-        } catch (err) {
-          console.error(err);
-        }
-      } else {
-        alert("Adsgram SDK is loading or blocked by AdBlocker.");
-      }
-    }
-
-    // 3. Final Unlock Action - Redirects once all ads/tasks are done
+    // 2. Final Unlock Action - Redirects once all tasks are completed
     function unlockContent() {
       if (completedTasks >= totalTasks) {
         if (tg && tg.openTelegramLink && FINAL_DESTINATION_URL.includes("t.me")) {
@@ -221,12 +184,13 @@
       document.getElementById('progress-fill').style.width = `${percent}%`;
 
       const unlockBtn = document.getElementById('unlock-btn');
-      unlockBtn.innerText = `UNLOCK VIDEOS (${completedTasks}/${totalTasks})`;
 
       if (completedTasks >= totalTasks) {
         unlockBtn.classList.add('active');
         unlockBtn.disabled = false;
         unlockBtn.innerText = `🎉 UNLOCK VIDEOS NOW`;
+      } else {
+        unlockBtn.innerText = `UNLOCK VIDEOS (${completedTasks}/${totalTasks})`;
       }
     }
   </script>
