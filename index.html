@@ -109,6 +109,64 @@
       background-color: #eab308;
       color: #000000;
     }
+
+    /* Screenshot Matching Modal Overlay */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .modal-box {
+      background-color: #080808;
+      border: 1.5px solid #ff3b30;
+      border-radius: 18px;
+      padding: 28px 20px;
+      width: 85%;
+      max-width: 320px;
+      text-align: center;
+      box-shadow: 0 0 25px rgba(255, 59, 48, 0.25);
+    }
+
+    .share-count-text {
+      color: #ff3b30;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+
+    .share-instruction {
+      color: #ffffff;
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.35;
+      margin-bottom: 24px;
+      text-transform: uppercase;
+    }
+
+    .ok-btn {
+      background-color: #ff3b30;
+      color: #ffffff;
+      border: none;
+      padding: 12px 0;
+      width: 100%;
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .ok-btn:active {
+      opacity: 0.85;
+    }
   </style>
 </head>
 <body>
@@ -130,6 +188,15 @@
 
     <!-- Option 2: Unlock / Watch Ad Button -->
     <button id="unlock-btn" class="btn btn-unlock" onclick="handleUnlockClick()">UNLOCK VIDEOS (0/5)</button>
+  </div>
+
+  <!-- Screenshot Popup Structure -->
+  <div class="modal-overlay" id="shareModal">
+    <div class="modal-box">
+      <div class="share-count-text">YOUR SHARE = <span id="modal-share-count">0</span></div>
+      <div class="share-instruction">SHARE TO 3 USERS TO UNLOCK</div>
+      <button class="ok-btn" onclick="handleModalOkClick()">OK</button>
+    </div>
   </div>
 
   <script>
@@ -165,6 +232,22 @@
       updateUI();
     }
 
+    // Show Popup function
+    function showShareModal() {
+      document.getElementById('modal-share-count').innerText = completedTasks;
+      document.getElementById('shareModal').style.display = 'flex';
+    }
+
+    // Handle OK button inside modal popup
+    function handleModalOkClick() {
+      document.getElementById('shareModal').style.display = 'none';
+      if (tg && tg.openTelegramLink) {
+        tg.openTelegramLink(DIRECT_SHARE_URL);
+      } else {
+        window.open(DIRECT_SHARE_URL, '_blank');
+      }
+    }
+
     // 2. Unlock Click Action (Shows Ad if tasks remaining, otherwise opens final URL)
     function handleUnlockClick() {
       if (completedTasks >= totalTasks) {
@@ -186,6 +269,8 @@
             .then((result) => {
               completedTasks++;
               updateUI();
+              // Show image popup after video ad complete
+              showShareModal();
             })
             .catch((error) => {
               console.error("Adsgram Error:", error);
