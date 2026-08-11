@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Unlock Video & Share System</title>
-  
-  <!-- Telegram Web App Script -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Content Unlocker</title>
+
+  <!-- Telegram Web App SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   
-  <!-- Adsgram SDK Script -->
+  <!-- Adsgram SDK -->
   <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
 
   <style>
@@ -16,208 +16,206 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     }
 
     body {
-      background-color: #000000;
+      background-color: #0b0f19;
       color: #ffffff;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       display: flex;
-      flex-direction: column;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
       padding: 20px;
     }
 
-    /* Video Player Container */
-    .container {
+    .card {
+      background-color: #161b26;
+      border-radius: 20px;
+      padding: 32px 24px;
       width: 100%;
-      max-width: 400px;
+      max-width: 340px;
       text-align: center;
+      border: 1px solid #232a3b;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     }
 
-    .video-box {
-      width: 100%;
-      height: 220px;
-      background-color: #1a1a1a;
-      border-radius: 12px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-bottom: 20px;
-      border: 1px solid #333;
-    }
-
-    .action-btn {
-      background-color: #0088cc;
-      color: #fff;
-      border: none;
-      padding: 14px 28px;
-      font-size: 16px;
-      font-weight: bold;
-      border-radius: 8px;
-      cursor: pointer;
-      width: 100%;
-    }
-
-    /* Modal Popup Overlay */
-    .modal-overlay {
-      display: none; /* Initially hidden */
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.88);
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-    }
-
-    /* Popup Box according to image */
-    .modal-box {
-      background-color: #080808;
-      border: 1.5px solid #ff3b30;
-      border-radius: 18px;
-      padding: 28px 20px;
-      width: 85%;
-      max-width: 320px;
-      text-align: center;
-      box-shadow: 0 0 25px rgba(255, 59, 48, 0.25);
-    }
-
-    .share-count-text {
-      color: #ff3b30;
-      font-size: 20px;
-      font-weight: 800;
-      letter-spacing: 1px;
-      margin-bottom: 16px;
-    }
-
-    .share-instruction {
-      color: #ffffff;
-      font-size: 18px;
+    h2 {
+      font-size: 1.25rem;
       font-weight: 700;
-      line-height: 1.35;
       margin-bottom: 24px;
+      letter-spacing: 0.5px;
       text-transform: uppercase;
     }
 
-    .ok-btn {
-      background-color: #ff3b30;
-      color: #ffffff;
-      border: none;
-      padding: 12px 0;
+    .progress-bar-container {
       width: 100%;
+      height: 24px;
+      background-color: #212938;
       border-radius: 12px;
-      font-size: 18px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background-color: #007aff;
+      border-radius: 12px;
+      transition: width 0.3s ease;
+    }
+
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #8e9bae;
+      margin-bottom: 28px;
+      padding: 0 4px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
       font-weight: 700;
+      font-size: 0.95rem;
+      letter-spacing: 0.5px;
       cursor: pointer;
+      margin-bottom: 12px;
+      transition: opacity 0.2s ease, background-color 0.2s ease;
     }
 
-    .ok-btn:active {
-      opacity: 0.85;
+    .btn:active {
+      opacity: 0.8;
     }
 
-    /* Unlocked Content Area */
-    #unlockedContent {
-      display: none;
-      margin-top: 15px;
-      color: #4cd964;
-      font-size: 18px;
-      font-weight: bold;
+    /* Primary Action: Share Button */
+    .btn-share {
+      background-color: #007aff;
+      color: #ffffff;
+    }
+
+    /* Target Action: Unlock Button */
+    .btn-unlock {
+      background-color: #212938;
+      color: #ffffff;
+      margin-bottom: 0;
+    }
+
+    .btn-unlock.active {
+      background-color: #eab308;
+      color: #000000;
     }
   </style>
 </head>
 <body>
 
-  <div class="container">
-    <div class="video-box" id="videoPlaceholder">
-      <p style="color: #888;">Video Locked 🔒</p>
+  <div class="card">
+    <h2>STEP MOM IS LOCKED</h2>
+
+    <div class="progress-bar-container">
+      <div id="progress-fill" class="progress-bar-fill"></div>
     </div>
 
-    <button class="action-btn" id="watchAdBtn" onclick="playVideoAd()">Watch Ad to Unlock</button>
-    <div id="unlockedContent">🎉 Content Successfully Unlocked!</div>
-  </div>
-
-  <!-- Modal Popup (Exact Image Replica) -->
-  <div class="modal-overlay" id="shareModal">
-    <div class="modal-box">
-      <div class="share-count-text">YOUR SHARE = <span id="shareCount">0</span></div>
-      <div class="share-instruction" id="popupMsg">SHARE TO 3 USERS TO UNLOCK</div>
-      <button class="ok-btn" onclick="handleShareClick()">OK</button>
+    <div class="progress-info">
+      <span id="progress-percent">0% Completed</span>
+      <span id="task-count">0 / 5 Tasks</span>
     </div>
+
+    <!-- Option 1: Share Link -->
+    <button class="btn btn-share" onclick="handleShareTask()">SHARE</button>
+
+    <!-- Option 2: Unlock / Watch Ad Button -->
+    <button id="unlock-btn" class="btn btn-unlock" onclick="handleUnlockClick()">UNLOCK VIDEOS (0/5)</button>
   </div>
 
   <script>
-    // Initialize Telegram WebApp
-    const tg = window.Telegram ? window.Telegram.WebApp : null;
-    if (tg) tg.ready();
+    // Initialize Telegram WebApp SDK
+    let tg = window.Telegram?.WebApp;
+    if (tg) {
+      tg.ready();
+      tg.expand();
+    }
 
     // Configuration
-    const REQUIRED_SHARES = 3;
-    let currentShares = parseInt(localStorage.getItem('userShares') || '0');
+    let completedTasks = 0;
+    const totalTasks = 5;
+    const ADSGRAM_BLOCK_ID = "40172";
+    
+    // Telegram Share URL for task completion
+    const DIRECT_SHARE_URL = "https://t.me/share/url?url=%20JOIN%20THIS%20AMAZING%20GROUP%20%F0%9F%A5%B5%20-%20https%3A%2F%2Ft.me%2F%2Bcs76HfenGYI4MWQ1";
 
-    // Adsgram Controller Initialization (Apna Block ID Yahan Lagayein)
-    const AdController = window.Adsgram ? window.Adsgram.init({ blockId: "YOUR_ADSGRAM_BLOCK_ID" }) : null;
+    // Final Link to redirect after completing 5 tasks
+    const FINAL_DESTINATION_URL = "https://t.me/+cs76HfenGYI4MWQ1  ";
 
-    function playVideoAd() {
-      if (AdController) {
-        // Adsgram Video Ad Play Call
-        AdController.show().then((result) => {
-          // Ad Successfully Completed
-          onAdCompleted();
-        }).catch((result) => {
-          // If Ad fails or user closes early
-          alert("Please watch the full ad to proceed.");
-        });
-      } else {
-        // Fallback for testing / Demo
-        console.log("Ad completed (Demo Mode)");
-        onAdCompleted();
-      }
-    }
+    // 1. Share Option Action
+    function handleShareTask() {
+      if (completedTasks >= totalTasks) return;
 
-    function onAdCompleted() {
-      // Refresh share display counter
-      document.getElementById('shareCount').innerText = currentShares;
-      
-      if (currentShares >= REQUIRED_SHARES) {
-        unlockMainContent();
-      } else {
-        // Show the Share requirement popup
-        document.getElementById('shareModal').style.display = 'flex';
-      }
-    }
-
-    function handleShareClick() {
-      // Increment share count logic
-      currentShares++;
-      localStorage.setItem('userShares', currentShares);
-      document.getElementById('shareCount').innerText = currentShares;
-
-      // Telegram Native Share Trigger
-      const shareUrl = "https://t.me/share/url?url=" + encodeURIComponent(window.location.href) + "&text=" + encodeURIComponent("Watch premium videos for free!");
-      
       if (tg && tg.openTelegramLink) {
-        tg.openTelegramLink(shareUrl);
+        tg.openTelegramLink(DIRECT_SHARE_URL);
       } else {
-        window.open(shareUrl, '_blank');
+        window.open(DIRECT_SHARE_URL, '_blank');
       }
 
-      // Check if requirement reached after click
-      if (currentShares >= REQUIRED_SHARES) {
-        document.getElementById('shareModal').style.display = 'none';
-        unlockMainContent();
+      completedTasks++;
+      updateUI();
+    }
+
+    // 2. Unlock Click Action (Shows Ad if tasks remaining, otherwise opens final URL)
+    function handleUnlockClick() {
+      if (completedTasks >= totalTasks) {
+        // Final destination redirect
+        if (tg && tg.openTelegramLink && FINAL_DESTINATION_URL.includes("t.me")) {
+          tg.openTelegramLink(FINAL_DESTINATION_URL);
+        } else {
+          window.location.href = FINAL_DESTINATION_URL;
+        }
+        return;
+      }
+
+      // Play Ad to gain progress
+      if (typeof window.Adsgram !== "undefined") {
+        try {
+          const AdController = window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID });
+
+          AdController.show()
+            .then((result) => {
+              completedTasks++;
+              updateUI();
+            })
+            .catch((error) => {
+              console.error("Adsgram Error:", error);
+              alert("Ad closed early or temporarily unavailable. Please try again!");
+            });
+        } catch (err) {
+          console.error(err);
+        }
+      } else {
+        alert("Adsgram SDK is loading or blocked by AdBlocker.");
       }
     }
 
-    function unlockMainContent() {
-      document.getElementById('shareModal').style.display = 'none';
-      document.getElementById('watchAdBtn').style.display = 'none';
-      document.getElementById('videoPlaceholder').innerHTML = '<p style="color: #4cd964;">▶️ Video Playing Now</p>';
-      document.getElementById('unlockedContent').style.display = 'block';
+    // Update UI Progress
+    function updateUI() {
+      if (completedTasks > totalTasks) completedTasks = totalTasks;
+
+      const percent = Math.round((completedTasks / totalTasks) * 100);
+      document.getElementById('progress-percent').innerText = `${percent}% Completed`;
+      document.getElementById('task-count').innerText = `${completedTasks} / ${totalTasks} Tasks`;
+      document.getElementById('progress-fill').style.width = `${percent}%`;
+
+      const unlockBtn = document.getElementById('unlock-btn');
+
+      if (completedTasks >= totalTasks) {
+        unlockBtn.classList.add('active');
+        unlockBtn.innerText = `🎉 UNLOCK VIDEOS NOW`;
+      } else {
+        unlockBtn.innerText = `UNLOCK VIDEOS (${completedTasks}/${totalTasks})`;
+      }
     }
   </script>
 
