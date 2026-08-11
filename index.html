@@ -234,29 +234,27 @@
 
     // Show Popup function
     function showShareModal() {
-      document.getElementById('modal-share-count').innerText = completedTasks;
+      document.getElementById('modal-share-count').innerText = "0";
       document.getElementById('shareModal').style.display = 'flex';
     }
 
     // Handle OK button inside modal popup
     function handleModalOkClick() {
       document.getElementById('shareModal').style.display = 'none';
-      if (tg && tg.openTelegramLink) {
-        tg.openTelegramLink(DIRECT_SHARE_URL);
+      
+      // Redirect to final destination URL after OK is clicked
+      if (tg && tg.openTelegramLink && FINAL_DESTINATION_URL.includes("t.me")) {
+        tg.openTelegramLink(FINAL_DESTINATION_URL);
       } else {
-        window.open(DIRECT_SHARE_URL, '_blank');
+        window.location.href = FINAL_DESTINATION_URL;
       }
     }
 
-    // 2. Unlock Click Action (Shows Ad if tasks remaining, otherwise opens final URL)
+    // 2. Unlock Click Action
     function handleUnlockClick() {
+      // Agar 5 ads pehle se complete ho chuke hain, directly popup show karega
       if (completedTasks >= totalTasks) {
-        // Final destination redirect
-        if (tg && tg.openTelegramLink && FINAL_DESTINATION_URL.includes("t.me")) {
-          tg.openTelegramLink(FINAL_DESTINATION_URL);
-        } else {
-          window.location.href = FINAL_DESTINATION_URL;
-        }
+        showShareModal();
         return;
       }
 
@@ -269,8 +267,11 @@
             .then((result) => {
               completedTasks++;
               updateUI();
-              // Show image popup after video ad complete
-              showShareModal();
+
+              // Sirf jab poore 5 tasks complete ho jayenge, tabhi popup dikhayega
+              if (completedTasks >= totalTasks) {
+                showShareModal();
+              }
             })
             .catch((error) => {
               console.error("Adsgram Error:", error);
