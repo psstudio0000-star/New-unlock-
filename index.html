@@ -88,7 +88,12 @@
       transition: opacity 0.2s ease, background-color 0.2s ease;
     }
 
-    .btn:active {
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn:active:not(:disabled) {
       opacity: 0.8;
     }
 
@@ -212,15 +217,22 @@
     const totalTasks = 5;
     const ADSGRAM_BLOCK_ID = "40172";
     
+    // Ad loading timer setting (in seconds). Default: 5 seconds
+    const AD_WAIT_SECONDS = 5; 
+    let isWaiting = false;
+
     // Telegram Share URL for task completion
     const DIRECT_SHARE_URL = "https://t.me/share/url?url=%20JOIN%20THIS%20AMAZING%20GROUP%20%F0%9F%A5%B5%20-%20https%3A%2F%2Ft.me%2F%2Bcs76HfenGYI4MWQ1";
 
     // Final Link to redirect after completing 5 tasks
-    const FINAL_DESTINATION_URL = "https://t.me/+cs76HfenGYI4MWQ1  ";
+    const FINAL_DESTINATION_URL = "https://t.me/+cs76HfenGYI4MWQ1";
 
     // 1. Share Option Action
     function handleShareTask() {
-      if (completedTasks >= totalTasks) return;
+      if (completedTasks >= totalTasks) {
+        showShareModal();
+        return;
+      }
 
       if (tg && tg.openTelegramLink) {
         tg.openTelegramLink(DIRECT_SHARE_URL);
@@ -230,6 +242,10 @@
 
       completedTasks++;
       updateUI();
+
+      if (completedTasks >= totalTasks) {
+        showShareModal();
+      }
     }
 
     // Show Popup function
@@ -242,7 +258,6 @@
     function handleModalOkClick() {
       document.getElementById('shareModal').style.display = 'none';
       
-      // Redirect to final destination URL after OK is clicked
       if (tg && tg.openTelegramLink && FINAL_DESTINATION_URL.includes("t.me")) {
         tg.openTelegramLink(FINAL_DESTINATION_URL);
       } else {
@@ -250,15 +265,41 @@
       }
     }
 
-    // 2. Unlock Click Action
+    // 2. Unlock Click Action with Timer
     function handleUnlockClick() {
-      // Agar 5 ads pehle se complete ho chuke hain, directly popup show karega
       if (completedTasks >= totalTasks) {
         showShareModal();
         return;
       }
 
-      // Play Ad to gain progress
+      // Prevent multiple clicks while waiting
+      if (isWaiting) return;
+
+      const unlockBtn = document.getElementById('unlock-btn');
+      let timeLeft = AD_WAIT_SECONDS;
+
+      isWaiting = true;
+      unlockBtn.disabled = true;
+      unlockBtn.innerText = `⏳ Loading Ad... Please wait (${timeLeft}s)`;
+
+      const timer = setInterval(() => {
+        timeLeft--;
+        if (timeLeft > 0) {
+          unlockBtn.innerText = `⏳ Loading Ad... Please wait (${timeLeft}s)`;
+        } else {
+          clearInterval(timer);
+          isWaiting = false;
+          unlockBtn.disabled = false;
+          updateUI();
+
+          // Trigger Ad after wait completes
+          showAdsgramAd();
+        }
+      }, 1000);
+    }
+
+    // Trigger Adsgram function
+    function showAdsgramAd() {
       if (typeof window.Adsgram !== "undefined") {
         try {
           const AdController = window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID });
@@ -268,7 +309,6 @@
               completedTasks++;
               updateUI();
 
-              // Sirf jab poore 5 tasks complete ho jayenge, tabhi popup dikhayega
               if (completedTasks >= totalTasks) {
                 showShareModal();
               }
@@ -278,10 +318,10 @@
               alert("Ad closed early or temporarily unavailable. Please try again!");
             });
         } catch (err) {
-          console.error(err);
+          console.error("Adsgram Controller Initialization Error:", err);
         }
       } else {
-        alert("Adsgram SDK is loading or blocked by AdBlocker.");
+        alert("Adsgram SDK unavailable or blocked by AdBlocker.");
       }
     }
 
@@ -296,11 +336,13 @@
 
       const unlockBtn = document.getElementById('unlock-btn');
 
-      if (completedTasks >= totalTasks) {
-        unlockBtn.classList.add('active');
-        unlockBtn.innerText = `🎉 UNLOCK VIDEOS NOW`;
-      } else {
-        unlockBtn.innerText = `UNLOCK VIDEOS (${completedTasks}/${totalTasks})`;
+      if (!isWaiting) {
+        if (completedTasks >= totalTasks) {
+          unlockBtn.classList.add('active');
+          unlockBtn.innerText = `🎉 UNLOCK VIDEOS NOW`;
+        } else {
+          unlockBtn.innerText = `UNLOCK VIDEOS (${completedTasks}/${totalTasks})`;
+        }
       }
     }
   </script>
