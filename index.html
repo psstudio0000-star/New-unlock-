@@ -217,7 +217,7 @@
     const totalTasks = 5;
     const ADSGRAM_BLOCK_ID = "40172";
     
-    // Ad loading timer setting (in seconds). Default: 5 seconds
+    // Timer set to exactly 5 seconds
     const AD_WAIT_SECONDS = 5; 
     let isWaiting = false;
 
@@ -265,7 +265,7 @@
       }
     }
 
-    // 2. Unlock Click Action with Timer
+    // 2. Unlock Click Action with 5 Seconds Timer
     function handleUnlockClick() {
       if (completedTasks >= totalTasks) {
         showShareModal();
@@ -280,19 +280,19 @@
 
       isWaiting = true;
       unlockBtn.disabled = true;
-      unlockBtn.innerText = `⏳ Loading Ad... Please wait (${timeLeft}s)`;
+      unlockBtn.innerText = `⏳ Loading Ad... Wait ${timeLeft}s`;
 
       const timer = setInterval(() => {
         timeLeft--;
         if (timeLeft > 0) {
-          unlockBtn.innerText = `⏳ Loading Ad... Please wait (${timeLeft}s)`;
+          unlockBtn.innerText = `⏳ Loading Ad... Wait ${timeLeft}s`;
         } else {
           clearInterval(timer);
           isWaiting = false;
           unlockBtn.disabled = false;
           updateUI();
 
-          // Trigger Ad after wait completes
+          // Trigger Ad after 5 seconds wait completes
           showAdsgramAd();
         }
       }, 1000);
