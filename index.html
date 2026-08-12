@@ -48,28 +48,32 @@
       text-transform: uppercase;
     }
 
+    /* Modern Progress Bar */
     .progress-bar-container {
       width: 100%;
-      height: 24px;
-      background-color: #212938;
+      height: 22px;
+      background-color: #121722;
       border-radius: 12px;
       overflow: hidden;
       margin-bottom: 12px;
+      border: 1px solid #212938;
+      padding: 2px;
     }
 
     .progress-bar-fill {
       height: 100%;
       width: 0%;
-      background-color: #007aff;
-      border-radius: 12px;
-      transition: width 0.3s ease;
+      background: linear-gradient(90deg, #007aff, #00d4ff);
+      border-radius: 10px;
+      transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 0 12px rgba(0, 212, 255, 0.5);
     }
 
     .progress-info {
       display: flex;
       justify-content: space-between;
       font-size: 0.875rem;
-      font-weight: 500;
+      font-weight: 600;
       color: #8e9bae;
       margin-bottom: 28px;
       padding: 0 4px;
@@ -77,30 +81,29 @@
 
     .btn {
       width: 100%;
-      padding: 14px;
+      padding: 15px;
       border: none;
-      border-radius: 12px;
+      border-radius: 14px;
       font-weight: 700;
       font-size: 0.95rem;
       letter-spacing: 0.5px;
       cursor: pointer;
       margin-bottom: 12px;
-      transition: opacity 0.2s ease, background-color 0.2s ease;
-    }
-
-    .btn:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
+      transition: all 0.25s ease;
+      position: relative;
+      overflow: hidden;
     }
 
     .btn:active:not(:disabled) {
-      opacity: 0.8;
+      transform: scale(0.98);
+      opacity: 0.9;
     }
 
     /* Primary Action: Share Button */
     .btn-share {
-      background-color: #007aff;
+      background: linear-gradient(135deg, #007aff, #0056b3);
       color: #ffffff;
+      box-shadow: 0 4px 15px rgba(0, 122, 255, 0.35);
     }
 
     /* Target Action: Unlock Button */
@@ -108,11 +111,33 @@
       background-color: #212938;
       color: #ffffff;
       margin-bottom: 0;
+      border: 1px solid #2c364c;
     }
 
     .btn-unlock.active {
-      background-color: #eab308;
+      background: linear-gradient(135deg, #eab308, #ca8a04);
       color: #000000;
+      box-shadow: 0 4px 20px rgba(234, 179, 8, 0.4);
+    }
+
+    /* Professional Loading Shimmer Effect */
+    @keyframes shimmerWave {
+      0% {
+        background-position: -200% 0;
+      }
+      100% {
+        background-position: 200% 0;
+      }
+    }
+
+    .btn-unlock:disabled {
+      background: linear-gradient(90deg, #182232 0%, #007aff 50%, #182232 100%);
+      background-size: 200% 100%;
+      animation: shimmerWave 1.6s infinite linear;
+      color: #ffffff;
+      border: 1px solid #007aff;
+      box-shadow: 0 0 18px rgba(0, 122, 255, 0.4);
+      cursor: not-allowed;
     }
 
     /* Screenshot Matching Modal Overlay */
@@ -127,6 +152,7 @@
       justify-content: center;
       align-items: center;
       z-index: 9999;
+      backdrop-filter: blur(4px);
     }
 
     .modal-box {
@@ -217,7 +243,7 @@
     const totalTasks = 5;
     const ADSGRAM_BLOCK_ID = "40172";
     
-    // Timer set to exactly 5 seconds
+    // Timer set to 5 seconds
     const AD_WAIT_SECONDS = 5; 
     let isWaiting = false;
 
@@ -265,14 +291,13 @@
       }
     }
 
-    // 2. Unlock Click Action with 5 Seconds Timer
+    // 2. Unlock Click Action with 5 Seconds Timer & Shimmer Loading
     function handleUnlockClick() {
       if (completedTasks >= totalTasks) {
         showShareModal();
         return;
       }
 
-      // Prevent multiple clicks while waiting
       if (isWaiting) return;
 
       const unlockBtn = document.getElementById('unlock-btn');
@@ -280,12 +305,12 @@
 
       isWaiting = true;
       unlockBtn.disabled = true;
-      unlockBtn.innerText = `⏳ Loading Ad... Wait ${timeLeft}s`;
+      unlockBtn.innerText = `⚡ Loading Ad... ${timeLeft}s`;
 
       const timer = setInterval(() => {
         timeLeft--;
         if (timeLeft > 0) {
-          unlockBtn.innerText = `⏳ Loading Ad... Wait ${timeLeft}s`;
+          unlockBtn.innerText = `⚡ Loading Ad... ${timeLeft}s`;
         } else {
           clearInterval(timer);
           isWaiting = false;
