@@ -1,4 +1,297 @@
-// 2. Unlock Click Action with 5 Seconds Timer & Shimmer Loading
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Content Unlocker</title>
+
+  <!-- Telegram Web App SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  
+  <!-- Adsgram SDK -->
+  <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: #0b0f19;
+      color: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .card {
+      background-color: #161b26;
+      border-radius: 20px;
+      padding: 32px 24px;
+      width: 100%;
+      max-width: 340px;
+      text-align: center;
+      border: 1px solid #232a3b;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 24px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    /* Modern Progress Bar */
+    .progress-bar-container {
+      width: 100%;
+      height: 22px;
+      background-color: #121722;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 12px;
+      border: 1px solid #212938;
+      padding: 2px;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #007aff, #00d4ff);
+      border-radius: 10px;
+      transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 0 12px rgba(0, 212, 255, 0.5);
+    }
+
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #8e9bae;
+      margin-bottom: 28px;
+      padding: 0 4px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 14px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      margin-bottom: 12px;
+      transition: all 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn:active:not(:disabled) {
+      transform: scale(0.98);
+      opacity: 0.9;
+    }
+
+    /* Primary Action: Share Button */
+    .btn-share {
+      background: linear-gradient(135deg, #007aff, #0056b3);
+      color: #ffffff;
+      box-shadow: 0 4px 15px rgba(0, 122, 255, 0.35);
+    }
+
+    /* Target Action: Unlock Button */
+    .btn-unlock {
+      background-color: #212938;
+      color: #ffffff;
+      margin-bottom: 0;
+      border: 1px solid #2c364c;
+    }
+
+    .btn-unlock.active {
+      background: linear-gradient(135deg, #eab308, #ca8a04);
+      color: #000000;
+      box-shadow: 0 4px 20px rgba(234, 179, 8, 0.4);
+    }
+
+    /* Professional Loading Shimmer Effect */
+    @keyframes shimmerWave {
+      0% {
+        background-position: -200% 0;
+      }
+      100% {
+        background-position: 200% 0;
+      }
+    }
+
+    .btn-unlock:disabled {
+      background: linear-gradient(90deg, #182232 0%, #007aff 50%, #182232 100%);
+      background-size: 200% 100%;
+      animation: shimmerWave 1.6s infinite linear;
+      color: #ffffff;
+      border: 1px solid #007aff;
+      box-shadow: 0 0 18px rgba(0, 122, 255, 0.4);
+      cursor: not-allowed;
+    }
+
+    /* Screenshot Matching Modal Overlay */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-box {
+      background-color: #080808;
+      border: 1.5px solid #ff3b30;
+      border-radius: 18px;
+      padding: 28px 20px;
+      width: 85%;
+      max-width: 320px;
+      text-align: center;
+      box-shadow: 0 0 25px rgba(255, 59, 48, 0.25);
+    }
+
+    .share-count-text {
+      color: #ff3b30;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+
+    .share-instruction {
+      color: #ffffff;
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.35;
+      margin-bottom: 24px;
+      text-transform: uppercase;
+    }
+
+    .ok-btn {
+      background-color: #ff3b30;
+      color: #ffffff;
+      border: none;
+      padding: 12px 0;
+      width: 100%;
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .ok-btn:active {
+      opacity: 0.85;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>STEP MOM IS LOCKED</h2>
+
+    <div class="progress-bar-container">
+      <div id="progress-fill" class="progress-bar-fill"></div>
+    </div>
+
+    <div class="progress-info">
+      <span id="progress-percent">0% Completed</span>
+      <span id="task-count">0 / 5 Tasks</span>
+    </div>
+
+    <!-- Option 1: Share Link -->
+    <button class="btn btn-share" onclick="handleShareTask()">SHARE</button>
+
+    <!-- Option 2: Unlock / Watch Ad Button -->
+    <button id="unlock-btn" class="btn btn-unlock" onclick="handleUnlockClick()">UNLOCK VIDEOS (0/5)</button>
+  </div>
+
+  <!-- Screenshot Popup Structure -->
+  <div class="modal-overlay" id="shareModal">
+    <div class="modal-box">
+      <div class="share-count-text">YOUR SHARE = <span id="modal-share-count">0</span></div>
+      <div class="share-instruction">SHARE TO 3 USERS TO UNLOCK</div>
+      <button class="ok-btn" onclick="handleModalOkClick()">OK</button>
+    </div>
+  </div>
+
+  <script>
+    // Initialize Telegram WebApp SDK
+    let tg = window.Telegram?.WebApp;
+    if (tg) {
+      tg.ready();
+      tg.expand();
+    }
+
+    // Configuration
+    let completedTasks = 0;
+    const totalTasks = 5;
+    const ADSGRAM_BLOCK_ID = "40172";
+    
+    // Timer set to 5 seconds
+    const AD_WAIT_SECONDS = 5; 
+    let isWaiting = false;
+
+    // Telegram Share URL for task completion
+    const DIRECT_SHARE_URL = "https://t.me/share/url?url=%20JOIN%20THIS%20AMAZING%20GROUP%20%F0%9F%A5%B5%20-%20https%3A%2F%2Ft.me%2F%2Bcs76HfenGYI4MWQ1";
+
+    // Final Link to redirect after completing 5 tasks
+    const FINAL_DESTINATION_URL = "https://t.me/+cs76HfenGYI4MWQ1";
+
+    // 1. Share Option Action
+    function handleShareTask() {
+      if (completedTasks >= totalTasks) {
+        showShareModal();
+        return;
+      }
+
+      if (tg && tg.openTelegramLink) {
+        tg.openTelegramLink(DIRECT_SHARE_URL);
+      } else {
+        window.open(DIRECT_SHARE_URL, '_blank');
+      }
+
+      completedTasks++;
+      updateUI();
+
+      if (completedTasks >= totalTasks) {
+        showShareModal();
+      }
+    }
+
+    // Show Popup function
+    function showShareModal() {
+      document.getElementById('modal-share-count').innerText = "0";
+      document.getElementById('shareModal').style.display = 'flex';
+    }
+
+    // Handle OK button inside modal popup
+    function handleModalOkClick() {
+      document.getElementById('shareModal').style.display = 'none';
+      
+      if (tg && tg.openTelegramLink && FINAL_DESTINATION_URL.includes("t.me")) {
+        tg.openTelegramLink(FINAL_DESTINATION_URL);
+      } else {
+        window.location.href = FINAL_DESTINATION_URL;
+      }
+    }
+
+    // 2. Unlock Click Action with 5 Seconds Timer & Shimmer Loading
     function handleUnlockClick() {
       if (completedTasks >= totalTasks) {
         showShareModal();
@@ -29,3 +322,55 @@
         }
       }, 1000);
     }
+
+    // Trigger Adsgram function
+    function showAdsgramAd() {
+      if (typeof window.Adsgram !== "undefined") {
+        try {
+          const AdController = window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID });
+
+          AdController.show()
+            .then((result) => {
+              completedTasks++;
+              updateUI();
+
+              if (completedTasks >= totalTasks) {
+                showShareModal();
+              }
+            })
+            .catch((error) => {
+              console.error("Adsgram Error:", error);
+              alert("Ad closed early or temporarily unavailable. Please try again!");
+            });
+        } catch (err) {
+          console.error("Adsgram Controller Initialization Error:", err);
+        }
+      } else {
+        alert("Adsgram SDK unavailable or blocked by AdBlocker.");
+      }
+    }
+
+    // Update UI Progress
+    function updateUI() {
+      if (completedTasks > totalTasks) completedTasks = totalTasks;
+
+      const percent = Math.round((completedTasks / totalTasks) * 100);
+      document.getElementById('progress-percent').innerText = `${percent}% Completed`;
+      document.getElementById('task-count').innerText = `${completedTasks} / ${totalTasks} Tasks`;
+      document.getElementById('progress-fill').style.width = `${percent}%`;
+
+      const unlockBtn = document.getElementById('unlock-btn');
+
+      if (!isWaiting) {
+        if (completedTasks >= totalTasks) {
+          unlockBtn.classList.add('active');
+          unlockBtn.innerText = `🎉 UNLOCK VIDEOS NOW`;
+        } else {
+          unlockBtn.innerText = `UNLOCK VIDEOS (${completedTasks}/${totalTasks})`;
+        }
+      }
+    }
+  </script>
+
+</body>
+</html>
