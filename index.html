@@ -216,26 +216,13 @@
     let completedTasks = 0;
     const totalTasks = 5;
     const ADSGRAM_BLOCK_ID = "40172";
-    let isAdLoading = false;
+    let isProcessing = false;
     
     // Telegram Share URL for task completion
     const DIRECT_SHARE_URL = "https://t.me/share/url?url=%20JOIN%20THIS%20AMAZING%20GROUP%20%F0%9F%A5%B5%20-%20https%3A%2F%2Ft.me%2F%2Bcs76HfenGYI4MWQ1";
 
     // Final Link to redirect after completing 5 tasks
     const FINAL_DESTINATION_URL = "https://t.me/+cs76HfenGYI4MWQ1";
-
-    // Create Fresh Controller Each Time to avoid Session Lock ("Oops Error")
-    function getAdsgramController() {
-      if (typeof window.Adsgram !== "undefined") {
-        try {
-          return window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID });
-        } catch (e) {
-          console.error("Adsgram Controller Error:", e);
-          return null;
-        }
-      }
-      return null;
-    }
 
     // 1. Share Option Action
     function handleShareTask() {
@@ -275,71 +262,86 @@
       }
     }
 
-    // 2. Unlock Click Action (Fixed Oops/Inventory Error)
+    // 2. Ultra-Smooth Unlock Mechanism
     function handleUnlockClick() {
       if (completedTasks >= totalTasks) {
         showShareModal();
         return;
       }
 
-      if (isAdLoading) return;
+      if (isProcessing) return;
+      isProcessing = true;
 
       const unlockBtn = document.getElementById('unlock-btn');
-      const AdController = getAdsgramController();
+      unlockBtn.disabled = true;
+      unlockBtn.innerText = "🎥 Loading HD Video Player...";
 
-      if (AdController) {
-        isAdLoading = true;
-        unlockBtn.disabled = true;
-        unlockBtn.innerText = "🎥 Loading HD Video Player...";
+      // Check if Adsgram is loaded
+      if (typeof window.Adsgram !== "undefined") {
+        try {
+          const AdController = window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID });
 
-        AdController.show()
-          .then((result) => {
-            completedTasks++;
-            updateUI();
-
-            if (completedTasks >= totalTasks) {
-              showShareModal();
-            } else {
-              startAdCooldown();
-            }
-          })
-          .catch((error) => {
-            console.warn("Adsgram Exception / Inventory Limit:", error);
-            // Dynamic Retry System: Error aane par page fasne ke bajaye user ko retry lene do
-            unlockBtn.innerText = "⚡ Re-connecting Server...";
-            
-            setTimeout(() => {
-              resetBtnState();
-            }, 1500);
-          });
+          AdController.show()
+            .then((result) => {
+              // Real Ad Completed
+              completeStepWithCooldown();
+            })
+            .catch((error) => {
+              // Adsgram Inventory Empty / "Oops" Bypass Mode
+              // Direct smooth buffer timer dikhayega, alert crash bilkul nahi aayega!
+              runSmoothFallback();
+            });
+        } catch (e) {
+          runSmoothFallback();
+        }
       } else {
-        alert("Server connecting... Please try again in 2 seconds.");
-        resetBtnState();
+        runSmoothFallback();
       }
     }
 
-    function startAdCooldown() {
+    // Fallback Buffer: jab Adsgram ad missing ho
+    function runSmoothFallback() {
       const unlockBtn = document.getElementById('unlock-btn');
-      let countdown = 3;
-      
-      unlockBtn.innerText = `⚡ Fetching High-Speed Server in ${countdown}s...`;
-      
+      let timeLeft = 4;
+
+      unlockBtn.innerText = `⚡ Buffering Stream Server... ${timeLeft}s`;
+
       const timer = setInterval(() => {
-        countdown--;
-        if (countdown > 0) {
-          unlockBtn.innerText = `⚡ Fetching High-Speed Server in ${countdown}s...`;
+        timeLeft--;
+        if (timeLeft > 0) {
+          unlockBtn.innerText = `⚡ Buffering Stream Server... ${timeLeft}s`;
         } else {
           clearInterval(timer);
-          resetBtnState();
+          completeStepWithCooldown();
         }
       }, 1000);
     }
 
-    function resetBtnState() {
-      isAdLoading = false;
-      const unlockBtn = document.getElementById('unlock-btn');
-      unlockBtn.disabled = false;
+    function completeStepWithCooldown() {
+      completedTasks++;
       updateUI();
+
+      if (completedTasks >= totalTasks) {
+        isProcessing = false;
+        showShareModal();
+      } else {
+        // 2 Second cooldown for next step
+        const unlockBtn = document.getElementById('unlock-btn');
+        let countdown = 2;
+        unlockBtn.innerText = `⚡ Connecting High-Speed Node... ${countdown}s`;
+
+        const cooldownTimer = setInterval(() => {
+          countdown--;
+          if (countdown > 0) {
+            unlockBtn.innerText = `⚡ Connecting High-Speed Node... ${countdown}s`;
+          } else {
+            clearInterval(cooldownTimer);
+            isProcessing = false;
+            unlockBtn.disabled = false;
+            updateUI();
+          }
+        }, 1000);
+      }
     }
 
     // Update UI Progress
@@ -353,7 +355,7 @@
 
       const unlockBtn = document.getElementById('unlock-btn');
 
-      if (!isAdLoading) {
+      if (!isProcessing) {
         if (completedTasks >= totalTasks) {
           unlockBtn.classList.add('active');
           unlockBtn.innerText = `🎉 UNLOCK VIDEOS NOW`;
