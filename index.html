@@ -93,7 +93,7 @@
     }
 
     .btn:disabled {
-      opacity: 0.6;
+      opacity: 0.7;
       cursor: not-allowed;
     }
 
@@ -228,7 +228,7 @@
     let AdController = null;
 
     function initAdsgramController() {
-      if (typeof window.Adsgram !== "undefined") {
+      if (typeof window.Adsgram !== "undefined" && !AdController) {
         try {
           AdController = window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID });
         } catch (e) {
@@ -237,7 +237,7 @@
       }
     }
 
-    // Initialize once on load
+    // Initialize once on DOM content load
     window.addEventListener("DOMContentLoaded", () => {
       initAdsgramController();
     });
@@ -281,7 +281,7 @@
       }
     }
 
-    // 2. Unlock Click Action with Cooldown Fix
+    // 2. Unlock Click Action
     function handleUnlockClick() {
       if (completedTasks >= totalTasks) {
         showShareModal();
@@ -299,7 +299,7 @@
       if (AdController) {
         isAdLoading = true;
         unlockBtn.disabled = true;
-        unlockBtn.innerText = "⏳ Loading Ad...";
+        unlockBtn.innerText = "🎥 Loading HD Video Player...";
 
         AdController.show()
           .then((result) => {
@@ -309,17 +309,17 @@
             if (completedTasks >= totalTasks) {
               showShareModal();
             } else {
-              // 3 Second Cooldown to allow Adsgram SDK to reset for next ad
+              // Smooth 3 Second Buffer Delay
               startAdCooldown();
             }
           })
           .catch((error) => {
             console.error("Adsgram Error:", error);
-            alert("Next ad is preparing or skipped. Please click UNLOCK again!");
+            alert("Video buffer busy. Please click UNLOCK again!");
             resetBtnState();
           });
       } else {
-        alert("Adsgram SDK is loading or blocked by AdBlocker.");
+        alert("Server connecting... Please try again in 2 seconds.");
       }
     }
 
@@ -327,12 +327,12 @@
       const unlockBtn = document.getElementById('unlock-btn');
       let countdown = 3;
       
-      unlockBtn.innerText = `⏳ Next Ad in ${countdown}s...`;
+      unlockBtn.innerText = `⚡ Fetching High-Speed Server in ${countdown}s...`;
       
       const timer = setInterval(() => {
         countdown--;
         if (countdown > 0) {
-          unlockBtn.innerText = `⏳ Next Ad in ${countdown}s...`;
+          unlockBtn.innerText = `⚡ Fetching High-Speed Server in ${countdown}s...`;
         } else {
           clearInterval(timer);
           resetBtnState();
