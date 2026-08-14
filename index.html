@@ -224,23 +224,18 @@
     // Final Link to redirect after completing 5 tasks
     const FINAL_DESTINATION_URL = "https://t.me/+cs76HfenGYI4MWQ1";
 
-    // Global AdController instance
-    let AdController = null;
-
-    function initAdsgramController() {
-      if (typeof window.Adsgram !== "undefined" && !AdController) {
+    // Create Fresh Controller Each Time to avoid Session Lock ("Oops Error")
+    function getAdsgramController() {
+      if (typeof window.Adsgram !== "undefined") {
         try {
-          AdController = window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID });
+          return window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID });
         } catch (e) {
-          console.error("Adsgram Init Error:", e);
+          console.error("Adsgram Controller Error:", e);
+          return null;
         }
       }
+      return null;
     }
-
-    // Initialize once on DOM content load
-    window.addEventListener("DOMContentLoaded", () => {
-      initAdsgramController();
-    });
 
     // 1. Share Option Action
     function handleShareTask() {
@@ -273,7 +268,6 @@
     function handleModalOkClick() {
       document.getElementById('shareModal').style.display = 'none';
       
-      // Redirect to final destination URL after OK is clicked
       if (tg && tg.openTelegramLink && FINAL_DESTINATION_URL.includes("t.me")) {
         tg.openTelegramLink(FINAL_DESTINATION_URL);
       } else {
@@ -281,7 +275,7 @@
       }
     }
 
-    // 2. Unlock Click Action
+    // 2. Unlock Click Action (Fixed Oops/Inventory Error)
     function handleUnlockClick() {
       if (completedTasks >= totalTasks) {
         showShareModal();
@@ -291,10 +285,7 @@
       if (isAdLoading) return;
 
       const unlockBtn = document.getElementById('unlock-btn');
-
-      if (!AdController) {
-        initAdsgramController();
-      }
+      const AdController = getAdsgramController();
 
       if (AdController) {
         isAdLoading = true;
@@ -309,17 +300,21 @@
             if (completedTasks >= totalTasks) {
               showShareModal();
             } else {
-              // Smooth 3 Second Buffer Delay
               startAdCooldown();
             }
           })
           .catch((error) => {
-            console.error("Adsgram Error:", error);
-            alert("Video buffer busy. Please click UNLOCK again!");
-            resetBtnState();
+            console.warn("Adsgram Exception / Inventory Limit:", error);
+            // Dynamic Retry System: Error aane par page fasne ke bajaye user ko retry lene do
+            unlockBtn.innerText = "⚡ Re-connecting Server...";
+            
+            setTimeout(() => {
+              resetBtnState();
+            }, 1500);
           });
       } else {
         alert("Server connecting... Please try again in 2 seconds.");
+        resetBtnState();
       }
     }
 
