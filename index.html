@@ -176,18 +176,8 @@
       box-shadow: 0 4px 20px rgba(34, 197, 94, 0.5);
     }
 
-    /* Shimmer Effect while Loading Ads */
-    @keyframes shimmerWave {
-      0% { background-position: -200% 0; }
-      100% { background-position: 200% 0; }
-    }
-
     .btn-unlock:disabled {
-      background: linear-gradient(90deg, #1e293b 0%, #2563eb 50%, #1e293b 100%);
-      background-size: 200% 100%;
-      animation: shimmerWave 1.4s infinite linear;
-      color: #ffffff;
-      border: 1px solid #3b82f6;
+      opacity: 0.6;
       cursor: not-allowed;
     }
 
@@ -262,11 +252,11 @@
       <span id="task-count">0 / 5 Keys</span>
     </div>
 
-    <!-- Smart Action Button -->
+    <!-- Direct Click Unlock Button -->
     <button id="unlock-btn" class="btn btn-unlock" onclick="handleUnlockClick()">🔓 DECRYPT PART 1 (0/5)</button>
   </div>
 
-  <!-- Final Unlock Redirect Modal -->
+  <!-- Final Redirect Modal -->
   <div class="modal-overlay" id="shareModal">
     <div class="modal-box">
       <div class="share-count-text">🎉 ACCESS GRANTED!</div>
@@ -285,13 +275,11 @@
     let completedTasks = 0;
     const totalTasks = 5;
     const ADSGRAM_BLOCK_ID = "42947";
-    const AD_WAIT_SECONDS = 4; // Faster timer for better retention
     let isWaiting = false;
 
     // Direct Final Telegram Link
     const FINAL_DESTINATION_URL = "https://t.me/+cs76HfenGYI4MWQ1";
 
-    // Dynamic Step Names to make users feel like real processing is happening
     const stepMessages = [
       "🔓 DECRYPT PART 1 (0/5)",
       "⚡ UNLOCK HD SERVER (1/5)",
@@ -300,6 +288,7 @@
       "🚀 FINAL ACCESS KEY (4/5)"
     ];
 
+    // Instant Click Logic (No Countdown Timer)
     function handleUnlockClick() {
       if (completedTasks >= totalTasks) {
         showShareModal();
@@ -307,23 +296,12 @@
       }
 
       if (isWaiting) return;
+      isWaiting = true;
 
       const unlockBtn = document.getElementById('unlock-btn');
-      let timeLeft = AD_WAIT_SECONDS;
-
-      isWaiting = true;
       unlockBtn.disabled = true;
-      unlockBtn.innerText = `🎥 Loading HD Video Player... ${timeLeft}s`;
 
-      const timer = setInterval(() => {
-        timeLeft--;
-        if (timeLeft > 0) {
-          unlockBtn.innerText = `🎥 Loading HD Video Player... ${timeLeft}s`;
-        } else {
-          clearInterval(timer);
-          showAdsgramAd();
-        }
-      }, 1000);
+      showAdsgramAd();
     }
 
     function showAdsgramAd() {
@@ -333,7 +311,6 @@
 
           AdController.show()
             .then((result) => {
-              // Ad success vibration feedback
               if (tg && tg.HapticFeedback) {
                 tg.HapticFeedback.notificationOccurred('success');
               }
@@ -347,7 +324,7 @@
             })
             .catch((error) => {
               console.error("Adsgram Error:", error);
-              alert("Ad verification failed. Please watch full ad to proceed!");
+              alert("Ad close ho gaya ya available nahi hai. Dobara try karein!");
               isWaiting = false;
               updateUI();
             });
@@ -357,7 +334,7 @@
           updateUI();
         }
       } else {
-        alert("AdBlocker detected or Adsgram SDK unavailable.");
+        alert("AdBlocker active hai ya Adsgram SDK load nahi hua.");
         isWaiting = false;
         updateUI();
       }
