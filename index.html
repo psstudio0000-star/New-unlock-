@@ -7,7 +7,7 @@
 
   <!-- Telegram Web App SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <!-- Adsgram SDK (Primary) -->
+  <!-- Adsgram SDK -->
   <script id="adsgram-script" src="https://sad.adsgram.ai/js/sad.min.js"></script>
 
   <style>
@@ -174,7 +174,7 @@
     }
 
     .btn-unlock:disabled {
-      opacity: 0.8;
+      opacity: 0.85;
       cursor: not-allowed;
     }
 
@@ -275,9 +275,9 @@
 
     const stepMessages = [
       "🔓 DECRYPT PART 1 (0/5)",
-      "⚡ UNLOCK HD SERVER (1/5)",
-      "🎥 BUFFER FULL VIDEO (2/5)",
-      "🔑 GENERATE STREAM KEY (3/5)",
+      "⚡ VERIFY SERVER BUFFER (1/5)",
+      "🎥 UNLOCK HD STREAM (2/5)",
+      "🔑 GENERATE ACCESS KEY (3/5)",
       "🚀 FINAL ACCESS KEY (4/5)"
     ];
 
@@ -292,12 +292,44 @@
 
       const unlockBtn = document.getElementById('unlock-btn');
       unlockBtn.disabled = true;
-      unlockBtn.innerText = "⏳ Connecting Server...";
 
-      executeAdCall();
+      // Task 2 and Task 4 are Timer Buffer Tasks (Gives Adsgram time to load)
+      if (completedTasks === 1 || completedTasks === 3) {
+        runServerTimerTask();
+      } else {
+        // Task 1, 3, 5 are Adsgram Ads
+        runAdsgramAdTask();
+      }
     }
 
-    function executeAdCall() {
+    function runServerTimerTask() {
+      const unlockBtn = document.getElementById('unlock-btn');
+      let timeLeft = 5;
+
+      const timerInterval = setInterval(() => {
+        unlockBtn.innerText = `⏳ Decrypting Server (${timeLeft}s)...`;
+        timeLeft--;
+
+        if (timeLeft < 0) {
+          clearInterval(timerInterval);
+          if (tg && tg.HapticFeedback) {
+            tg.HapticFeedback.notificationOccurred('success');
+          }
+          completedTasks++;
+          isWaiting = false;
+          updateUI();
+
+          if (completedTasks >= totalTasks) {
+            showShareModal();
+          }
+        }
+      }, 1000);
+    }
+
+    function runAdsgramAdTask() {
+      const unlockBtn = document.getElementById('unlock-btn');
+      unlockBtn.innerText = "⚡ Connecting Adsgram...";
+
       if (typeof window.Adsgram !== "undefined") {
         try {
           const AdController = window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID });
@@ -316,38 +348,21 @@
               }
             })
             .catch((error) => {
-              console.log("Adsgram Catch:", error);
-              // Silent recovery - No Popup Error Message
-              softReset();
+              // Silent recovery - no popup alert
+              unlockBtn.innerText = "🔄 Retrying Server Connection...";
+              setTimeout(() => {
+                isWaiting = false;
+                updateUI();
+              }, 1000);
             });
         } catch (err) {
-          console.log("Init Error:", err);
-          softReset();
+          isWaiting = false;
+          updateUI();
         }
       } else {
-        // Reload SDK script dynamically if missing
-        reloadAdsgramScript();
-        softReset();
-      }
-    }
-
-    function softReset() {
-      const unlockBtn = document.getElementById('unlock-btn');
-      unlockBtn.innerText = "⚡ Re-connecting... Tap Again";
-      setTimeout(() => {
         isWaiting = false;
         updateUI();
-      }, 1000);
-    }
-
-    function reloadAdsgramScript() {
-      const oldScript = document.getElementById('adsgram-script');
-      if (oldScript) oldScript.remove();
-
-      const newScript = document.createElement('script');
-      newScript.id = 'adsgram-script';
-      newScript.src = 'https://sad.adsgram.ai/js/sad.min.js?' + new Date().getTime();
-      document.head.appendChild(newScript);
+      }
     }
 
     function updateUI() {
