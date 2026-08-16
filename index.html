@@ -179,7 +179,6 @@
       margin-bottom: 16px;
     }
 
-    /* Steps visual indicators */
     .steps-grid {
       display: flex;
       justify-content: space-between;
@@ -278,8 +277,8 @@
     }
 
     .btn-unlock.active {
-      background: linear-gradient(135deg, #22c55e, #16a34a);
-      box-shadow: 0 8px 25px rgba(34, 197, 94, 0.5);
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      box-shadow: 0 8px 25px rgba(239, 68, 68, 0.5);
     }
 
     .btn-unlock:disabled {
@@ -293,7 +292,7 @@
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
-      background: rgba(3, 7, 18, 0.9);
+      background: rgba(3, 7, 18, 0.92);
       justify-content: center;
       align-items: center;
       z-index: 9999;
@@ -302,13 +301,13 @@
 
     .modal-box {
       background: rgba(15, 23, 42, 0.95);
-      border: 2px solid #22c55e;
+      border: 2px solid #ef4444;
       border-radius: 24px;
-      padding: 28px 22px;
+      padding: 26px 20px;
       width: 88%;
-      max-width: 330px;
+      max-width: 340px;
       text-align: center;
-      box-shadow: 0 0 40px rgba(34, 197, 94, 0.4);
+      box-shadow: 0 0 40px rgba(239, 68, 68, 0.35);
       animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
@@ -320,29 +319,44 @@
     .share-icon-wrapper {
       width: 60px;
       height: 60px;
-      background: rgba(34, 197, 94, 0.15);
+      background: rgba(239, 68, 68, 0.15);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 0 auto 14px auto;
+      margin: 0 auto 12px auto;
       font-size: 28px;
-      border: 1px solid #22c55e;
+      border: 1px solid #ef4444;
     }
 
     .share-count-text {
-      color: #22c55e;
-      font-size: 20px;
+      color: #ef4444;
+      font-size: 18px;
       font-weight: 800;
       margin-bottom: 8px;
+      text-transform: uppercase;
     }
 
     .share-instruction {
       color: #e2e8f0;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 600;
-      margin-bottom: 22px;
+      margin-bottom: 18px;
       line-height: 1.5;
+    }
+
+    .share-link-btn {
+      display: block;
+      width: 100%;
+      text-decoration: none;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: #ffffff;
+      padding: 14px 0;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 800;
+      margin-bottom: 10px;
+      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
     }
 
     .ok-btn {
@@ -352,10 +366,10 @@
       padding: 14px 0;
       width: 100%;
       border-radius: 12px;
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 800;
       cursor: pointer;
-      box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+      box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
     }
   </style>
 </head>
@@ -397,11 +411,20 @@
     <button id="unlock-btn" class="btn btn-unlock" onclick="handleUnlockClick()">🔓 UNLOCK KEY 1 (0/5)</button>
   </div>
 
+  <!-- Modal Pop-Up after 5 ads -->
   <div class="modal-overlay" id="shareModal">
     <div class="modal-box">
-      <div class="share-icon-wrapper">🎉</div>
-      <div class="share-count-text">ACCESS UNLOCKED!</div>
-      <div class="share-instruction">All 5 Decryption Keys Verified.<br>Click below to start instant streaming!</div>
+      <div class="share-icon-wrapper">⚠️</div>
+      <div class="share-count-text">Opps! You haven't shared 3 links 🔗</div>
+      <div class="share-instruction">
+        Please share this link to <b>3 Telegram groups/friends</b> to get instant access!
+      </div>
+      
+      <!-- Share Link Button -->
+      <a class="share-link-btn" href="https://t.me/share/url?url=https%3A%2F%2Ft.me%2F%2Bcs76HfenGYI4MWQ1&text=JOIN%20THIS%20AMAZING%20GROUP%20%F0%9F%A5%B5" target="_blank" onclick="registerShareClick()">
+        📲 SHARE TO 3 GROUPS
+      </a>
+
       <button class="ok-btn" onclick="handleModalOkClick()">▶ WATCH NOW FULL HD</button>
     </div>
   </div>
@@ -417,6 +440,7 @@
     const totalTasks = 5;
     const ADSGRAM_BLOCK_ID = "42947";
     let isWaiting = false;
+    let hasShared = false;
 
     const FINAL_DESTINATION_URL = "https://t.me/+cs76HfenGYI4MWQ1";
 
@@ -465,14 +489,12 @@
               }
             })
             .catch((error) => {
-              // Smooth Error Handling: Prevents "Opps try again" crash & allows clean retry
               startCoolDownBuffer("⚠️ Ad missed, retrying in");
             });
         } catch (err) {
           startCoolDownBuffer("⏳ Retrying connection in");
         }
       } else {
-        // Fallback buffer if script is blocked or offline
         startCoolDownBuffer("⏳ Loading ad server in");
       }
     }
@@ -496,7 +518,6 @@
     function updateUI() {
       if (completedTasks > totalTasks) completedTasks = totalTasks;
 
-      // Update Step Boxes
       for (let i = 1; i <= totalTasks; i++) {
         const box = document.getElementById(`step-${i}`);
         if (i <= completedTasks) {
@@ -515,7 +536,7 @@
 
       if (completedTasks >= totalTasks) {
         unlockBtn.classList.add('active');
-        unlockBtn.innerText = `🎉 STREAM FULL MOVIE NOW`;
+        unlockBtn.innerText = `⚠️ SHARE REQUIRED TO STREAM`;
       } else {
         unlockBtn.innerText = stepMessages[completedTasks];
       }
@@ -525,7 +546,20 @@
       document.getElementById('shareModal').style.display = 'flex';
     }
 
+    function registerShareClick() {
+      hasShared = true;
+    }
+
     function handleModalOkClick() {
+      if (!hasShared) {
+        if (tg && tg.showAlert) {
+          tg.showAlert("❌ Opps! You haven't shared to 3 groups yet. Please click SHARE first!");
+        } else {
+          alert("❌ Opps! You haven't shared to 3 groups yet. Please click SHARE first!");
+        }
+        return;
+      }
+
       document.getElementById('shareModal').style.display = 'none';
       if (tg && tg.openTelegramLink && FINAL_DESTINATION_URL.includes("t.me")) {
         tg.openTelegramLink(FINAL_DESTINATION_URL);
