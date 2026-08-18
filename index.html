@@ -15,7 +15,7 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, Helvetica, Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
     }
@@ -31,25 +31,7 @@
       overflow-x: hidden;
     }
 
-    .background-glow {
-      position: absolute;
-      width: 280px;
-      height: 280px;
-      background: radial-gradient(circle, rgba(99, 102, 241, 0.28) 0%, rgba(0,0,0,0) 70%);
-      top: 5%;
-      z-index: 0;
-      will-change: transform;
-      animation: float 6s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
-    }
-
-    @keyframes float {
-      0% { transform: translate3d(0, 0, 0); }
-      100% { transform: translate3d(0, -25px, 0); }
-    }
-
     .card {
-      position: relative;
-      z-index: 1;
       background: rgba(15, 23, 42, 0.72);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
@@ -59,7 +41,7 @@
       max-width: 380px;
       text-align: center;
       border: 1px solid rgba(255, 255, 255, 0.12);
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 35px rgba(99, 102, 241, 0.2);
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
     }
 
     .player-preview {
@@ -75,41 +57,9 @@
       align-items: center;
       margin-bottom: 20px;
       border: 1px solid rgba(255, 255, 255, 0.14);
-      overflow: hidden;
-      box-shadow: inset 0 0 25px rgba(0,0,0,0.7);
-    }
-
-    .play-wrapper {
-      position: relative;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      cursor: pointer;
-      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-
-    .play-wrapper:active {
-      transform: scale(0.92);
-    }
-
-    .play-pulse-ring {
-      position: absolute;
-      width: 72px;
-      height: 72px;
-      border-radius: 50%;
-      background: rgba(239, 68, 68, 0.45);
-      will-change: transform, opacity;
-      animation: ringPulse 2.2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
-    }
-
-    @keyframes ringPulse {
-      0% { transform: scale(0.85); opacity: 0.9; }
-      100% { transform: scale(1.7); opacity: 0; }
     }
 
     .play-icon {
-      position: relative;
-      z-index: 2;
       width: 62px;
       height: 62px;
       background: linear-gradient(135deg, #ef4444, #dc2626);
@@ -118,6 +68,7 @@
       justify-content: center;
       align-items: center;
       box-shadow: 0 0 30px rgba(239, 68, 68, 0.85);
+      cursor: pointer;
     }
 
     .play-icon::after {
@@ -128,65 +79,6 @@
       border-width: 11px 0 11px 19px;
       border-color: transparent transparent transparent #ffffff;
       margin-left: 5px;
-    }
-
-    .video-status-tag {
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      background: rgba(0, 0, 0, 0.65);
-      backdrop-filter: blur(10px);
-      font-size: 11px;
-      font-weight: 800;
-      padding: 6px 12px;
-      border-radius: 20px;
-      color: #f87171;
-      border: 1px solid rgba(248, 113, 113, 0.35);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      letter-spacing: 0.5px;
-    }
-
-    .quality-badge {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      background: rgba(99, 102, 241, 0.85);
-      backdrop-filter: blur(10px);
-      font-size: 10px;
-      font-weight: 800;
-      padding: 5px 9px;
-      border-radius: 8px;
-      color: #ffffff;
-      letter-spacing: 0.5px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .live-dot {
-      width: 7px;
-      height: 7px;
-      background-color: #ef4444;
-      border-radius: 50%;
-      box-shadow: 0 0 10px #ef4444;
-      animation: blink 1.2s ease-in-out infinite;
-    }
-
-    @keyframes blink { 50% { opacity: 0.3; } }
-
-    .video-title {
-      font-size: 1.15rem;
-      font-weight: 800;
-      margin-bottom: 6px;
-      color: #f8fafc;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-    }
-
-    .video-subtext {
-      font-size: 0.78rem;
-      color: #94a3b8;
-      margin-bottom: 18px;
     }
 
     .steps-grid {
@@ -208,15 +100,12 @@
       font-size: 11px;
       font-weight: 700;
       color: #64748b;
-      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
     .step-box.completed {
       background: rgba(34, 197, 94, 0.18);
       border-color: #22c55e;
       color: #4ade80;
-      transform: scale(1.02);
-      box-shadow: 0 0 12px rgba(34, 197, 94, 0.35);
     }
 
     .progress-bar-container {
@@ -235,9 +124,7 @@
       width: 0%;
       background: linear-gradient(90deg, #6366f1, #06b6d4, #10b981);
       border-radius: 20px;
-      transition: width 0.5s cubic-bezier(0.25, 1, 0.5, 1);
-      box-shadow: 0 0 15px rgba(6, 182, 212, 0.8);
-      will-change: width;
+      transition: width 0.5s ease;
     }
 
     .progress-info {
@@ -250,36 +137,18 @@
     }
 
     .btn {
-      position: relative;
       width: 100%;
       padding: 16px;
       border: none;
       border-radius: 16px;
       font-weight: 800;
       font-size: 0.95rem;
-      letter-spacing: 0.5px;
-      cursor: pointer;
-      overflow: hidden;
-      transition: transform 0.15s ease, background 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .btn:active:not(:disabled) {
-      transform: scale(0.97);
-    }
-
-    .btn-unlock {
       background: linear-gradient(135deg, #4f46e5, #3b82f6);
       color: #ffffff;
-      box-shadow: 0 8px 25px rgba(79, 70, 229, 0.45);
-      border: 1px solid rgba(255, 255, 255, 0.25);
+      cursor: pointer;
     }
 
-    .btn-unlock.active {
-      background: linear-gradient(135deg, #ef4444, #dc2626);
-      box-shadow: 0 8px 30px rgba(239, 68, 68, 0.6);
-    }
-
-    .btn-unlock:disabled {
+    .btn:disabled {
       opacity: 0.8;
       cursor: not-allowed;
     }
@@ -293,7 +162,6 @@
       justify-content: center;
       align-items: center;
       z-index: 9999;
-      backdrop-filter: blur(12px);
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.3s ease;
@@ -312,42 +180,6 @@
       width: 88%;
       max-width: 340px;
       text-align: center;
-      box-shadow: 0 0 50px rgba(239, 68, 68, 0.4);
-      transform: scale(0.85);
-      transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-
-    .modal-overlay.show .modal-box {
-      transform: scale(1);
-    }
-
-    .share-icon-wrapper {
-      width: 64px;
-      height: 64px;
-      background: rgba(239, 68, 68, 0.15);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 14px auto;
-      font-size: 28px;
-      border: 1px solid #ef4444;
-    }
-
-    .share-count-text {
-      color: #ef4444;
-      font-size: 18px;
-      font-weight: 800;
-      margin-bottom: 8px;
-      text-transform: uppercase;
-    }
-
-    .share-instruction {
-      color: #e2e8f0;
-      font-size: 13px;
-      font-weight: 600;
-      margin-bottom: 16px;
-      line-height: 1.5;
     }
 
     .share-link-btn {
@@ -386,20 +218,12 @@
 </head>
 <body>
 
-  <div class="background-glow"></div>
-
   <div class="card">
     <div class="player-preview">
-      <div class="video-status-tag"><span class="live-dot"></span> LOCKED • ULTRA HD</div>
-      <div class="quality-badge">4K 60FPS</div>
-      <div class="play-wrapper" onclick="handleUnlockClick()">
-        <div class="play-pulse-ring"></div>
-        <div class="play-icon"></div>
-      </div>
+      <div class="play-icon" onclick="handleUnlockClick()"></div>
     </div>
 
-    <div class="video-title">STEP MOM (FULL MOVIE)</div>
-    <div class="video-subtext">Duration: 1h 48m • Server #1 Fast Stream</div>
+    <h3 style="margin-bottom: 12px;">STEP MOM (FULL MOVIE)</h3>
 
     <div class="steps-grid">
       <div class="step-box" id="step-1">KEY 1</div>
@@ -418,20 +242,17 @@
       <span id="task-count">0 / 5 Keys</span>
     </div>
 
-    <button id="unlock-btn" class="btn btn-unlock" onclick="handleUnlockClick()">🔓 UNLOCK KEY 1 (0/5)</button>
+    <button id="unlock-btn" class="btn" onclick="handleUnlockClick()">🔓 UNLOCK KEY 1 (0/5)</button>
   </div>
 
   <div class="modal-overlay" id="shareModal">
     <div class="modal-box">
-      <div class="share-icon-wrapper">⚠️</div>
-      <div class="share-count-text">Share Required 🔗</div>
-      <div class="share-instruction">
-        Pehle niche diye gaye <b>SHARE</b> button par click karke groups mein send karein!
-      </div>
+      <h3 style="color: #ef4444; margin-bottom: 8px;">SHARE REQUIRED 🔗</h3>
+      <p style="font-size: 13px; color: #cbd5e1; margin-bottom: 16px;">Pehle niche diye gaye SHARE button par click karke groups me send karein!</p>
       
       <div id="modal-error-msg" class="inline-error">❌ Pehle SHARE button par click karein!</div>
 
-      <a class="share-link-btn" href="https://t.me/share/url?url=https%3A%2F%2Ft.me%2F%2Bcs76HfenGYI4MWQ1&text=JOIN%20THIS%20AMAZING%20GROUP%20%F0%9F%A5%B5" target="_blank" onclick="registerShareClick()">
+      <a class="share-link-btn" href="https://t.me/share/url?url=https%3A%2F%2Ft.me%2F%2Bcs76HfenGYI4MWQ1&text=JOIN%20THIS%20AMAZING%20GROUP" target="_blank" onclick="registerShareClick()">
         📲 SHARE TO GROUPS
       </a>
 
@@ -483,29 +304,26 @@
         try {
           const AdController = window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID });
 
-          AdController.show()
-            .then((result) => {
-              // Strictly verify if ad was completed/rewarded
-              if (result && (result.done || result.rewarded || result.state === 'completed')) {
-                if (tg && tg.HapticFeedback) {
-                  tg.HapticFeedback.notificationOccurred('success');
-                }
-                completedTasks++;
-                updateUI();
-
-                if (completedTasks >= totalTasks) {
-                  isWaiting = false;
-                  showShareModal();
-                } else {
-                  startCoolDownBuffer("⏳ Next Key Available in", 10);
-                }
-              } else {
-                startCoolDownBuffer("⚠️ Ad Skipped! Complete Ad in", 5);
+          AdController.show().then((result) => {
+            if (result && (result.done || result.rewarded || result.state === 'completed')) {
+              if (tg && tg.HapticFeedback) {
+                tg.HapticFeedback.notificationOccurred('success');
               }
-            })
-            .catch((error) => {
-              startCoolDownBuffer("⚠️ Ad Not Finished! Retry in", 5);
-            });
+              completedTasks++;
+              updateUI();
+
+              if (completedTasks >= totalTasks) {
+                isWaiting = false;
+                showShareModal();
+              } else {
+                startCoolDownBuffer("⏳ Next Key Available in", 10);
+              }
+            } else {
+              startCoolDownBuffer("⚠️ Ad Skipped! Complete Ad in", 5);
+            }
+          }).catch(() => {
+            startCoolDownBuffer("⚠️ Ad Not Finished! Retry in", 5);
+          });
         } catch (err) {
           startCoolDownBuffer("⏳ Loading Ad, retry in", 6);
         }
@@ -553,7 +371,6 @@
       if (!isWaiting) {
         unlockBtn.disabled = false;
         if (completedTasks >= totalTasks) {
-          unlockBtn.classList.add('active');
           unlockBtn.innerText = `⚠️ SHARE REQUIRED TO STREAM`;
         } else {
           unlockBtn.innerText = stepMessages[completedTasks];
@@ -568,8 +385,7 @@
     function registerShareClick() {
       hasShared = true;
       document.getElementById('modal-error-msg').style.display = 'none';
-      const okBtn = document.getElementById('modal-ok-btn');
-      okBtn.innerText = "✅ UNLOCKED! WATCH NOW";
+      document.getElementById('modal-ok-btn').innerText = "✅ UNLOCKED! WATCH NOW";
     }
 
     function handleModalOkClick() {
@@ -586,6 +402,5 @@
       }
     }
   </script>
-
 </body>
 </html>
