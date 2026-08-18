@@ -243,17 +243,14 @@
     // Configuration
     let completedTasks = 0;
     const totalTasks = 5;
-    const ADSGRAM_BLOCK_ID = "43334"; // Updated Block ID
+    const ADSGRAM_BLOCK_ID = "43334";
     
     // Timer set to 5 seconds
     const AD_WAIT_SECONDS = 5; 
     let isWaiting = false;
 
-    // Read Telegram URL start parameter (e.g. startapp=8)
-    const startParam = tg?.initDataUnsafe?.start_param || new URLSearchParams(window.location.search).get('startapp') || "";
-
-    // Telegram Share URL for task completion
-    const DIRECT_SHARE_URL = `https://t.me/share/url?url=https%3A%2F%2Ft.me%2Fsdgfdeddddbottbot%2Fapp%3Fstartapp%3D${startParam}&text=JOIN%20THIS%20AMAZING%20GROUP%20%F0%9F%A5%B5`;
+    // Updated Share URL to target channel directly
+    const DIRECT_SHARE_URL = "https://t.me/share/url?url=https%3A%2F%2Ft.me%2F%2Bcs76HfenGYI4MWQ1&text=JOIN%20THIS%20AMAZING%20GROUP%20%F0%9F%A5%B5";
 
     // Final Link to redirect after completing 5 tasks
     const FINAL_DESTINATION_URL = "https://t.me/+cs76HfenGYI4MWQ1";
