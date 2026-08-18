@@ -5,7 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>grpbot</title>
 
+  <!-- Telegram Web App SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <!-- Adsgram SDK -->
   <script id="adsgram-script" src="https://sad.adsgram.ai/js/sad.min.js"></script>
 
   <style>
@@ -28,7 +30,6 @@
       padding: 16px;
     }
 
-    /* Card UI matching video */
     .card {
       background: #0b0f19;
       border: 1px solid rgba(255, 255, 255, 0.05);
@@ -51,20 +52,46 @@
 
     .progress-bar-bg {
       width: 100%;
-      height: 14px;
-      background: #151c2c;
+      height: 16px;
+      background: #131a29;
       border-radius: 20px;
       overflow: hidden;
       margin-bottom: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      position: relative;
     }
 
     .progress-bar-fill {
       height: 100%;
       width: 0%;
-      background: #2563eb;
+      background: linear-gradient(90deg, #1d4ed8, #3b82f6, #60a5fa);
+      background-size: 200% 100%;
       border-radius: 20px;
-      transition: width 0.3s ease-in-out;
-      box-shadow: 0 0 10px rgba(37, 99, 235, 0.5);
+      transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 0 15px rgba(59, 130, 246, 0.8), inset 0 0 8px rgba(255, 255, 255, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.55),
+        transparent
+      );
+      animation: shimmer 1.8s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { left: -100%; }
+      100% { left: 100%; }
     }
 
     .progress-meta {
@@ -155,23 +182,23 @@
     const FINAL_DESTINATION_URL = "https://t.me/+cs76HfenGYI4MWQ1";
 
     function handleTaskClick() {
-      // 6 tasks pure hone ke baad redirect
       if (completedTasks >= totalTasks) {
         openFinalLink();
         return;
       }
 
-      // First Step (0/6): Video jaisa bina ad ke direct 17% Processing
+      // Step 1: Direct 17% without ad
       if (completedTasks === 0) {
         if (tg && tg.HapticFeedback) {
           tg.HapticFeedback.notificationOccurred('success');
         }
         completedTasks = 1;
         updateUI();
+        startCooldown(3); // 3 sec quick delay before 2nd task
         return;
       }
 
-      // Second Step Onwards (1/6 to 6/6): Adsgram Ads Call
+      // Step 2 onwards: Show Adsgram Ad
       const unlockBtn = document.getElementById('unlock-btn');
       unlockBtn.disabled = true;
       executeAdCall();
@@ -191,25 +218,44 @@
               }
               completedTasks++;
               updateUI();
+              startCooldown(5); // 5 sec cooldown to prevent Adsgram limit error
             })
             .catch((error) => {
-              unlockBtn.disabled = false;
               updateUI();
+              startCooldown(3);
             });
         } catch (err) {
-          unlockBtn.disabled = false;
           updateUI();
+          startCooldown(3);
         }
       } else {
-        unlockBtn.disabled = false;
         updateUI();
+        startCooldown(3);
       }
+    }
+
+    function startCooldown(seconds) {
+      if (completedTasks >= totalTasks) return;
+
+      const unlockBtn = document.getElementById('unlock-btn');
+      unlockBtn.disabled = true;
+      let timeLeft = seconds;
+
+      const timer = setInterval(() => {
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          unlockBtn.disabled = false;
+          unlockBtn.innerText = `UNLOCK VIDEOS (${completedTasks}/${totalTasks})`;
+        } else {
+          unlockBtn.innerText = `WAIT ${timeLeft}s... (${completedTasks}/${totalTasks})`;
+          timeLeft--;
+        }
+      }, 1000);
     }
 
     function updateUI() {
       if (completedTasks > totalTasks) completedTasks = totalTasks;
 
-      // Calculate percentage (1/6 = 17%, 2/6 = 33%, etc.)
       const percent = Math.round((completedTasks / totalTasks) * 100);
       
       document.getElementById('percent-text').innerText = `${percent}% Completed`;
@@ -217,13 +263,11 @@
       document.getElementById('progress-fill').style.width = `${percent}%`;
 
       const unlockBtn = document.getElementById('unlock-btn');
-      unlockBtn.disabled = false;
 
       if (completedTasks >= totalTasks) {
+        unlockBtn.disabled = false;
         unlockBtn.classList.add('completed');
         unlockBtn.innerText = "▶ WATCH FULL VIDEO NOW";
-      } else {
-        unlockBtn.innerText = `UNLOCK VIDEOS (${completedTasks}/${totalTasks})`;
       }
     }
 
