@@ -19,7 +19,7 @@
     }
 
     body {
-      background-color: #05070c;
+      background-color: #03060d;
       color: #ffffff;
       display: flex;
       justify-content: center;
@@ -28,14 +28,15 @@
       padding: 16px;
     }
 
+    /* Card exactly as shown in video recording */
     .card {
-      background: #0d121d;
+      background: #0b0f19;
       border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 24px;
-      padding: 28px 20px;
+      border-radius: 28px;
+      padding: 32px 22px;
       width: 100%;
       max-width: 360px;
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.9);
       text-align: center;
     }
 
@@ -43,15 +44,16 @@
       font-size: 1.25rem;
       font-weight: 800;
       color: #ffffff;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.6px;
       margin-bottom: 24px;
       text-transform: uppercase;
     }
 
+    /* Progress bar matching video */
     .progress-bar-bg {
       width: 100%;
       height: 14px;
-      background: #171e2c;
+      background: #151c2c;
       border-radius: 20px;
       overflow: hidden;
       margin-bottom: 12px;
@@ -62,8 +64,8 @@
       width: 0%;
       background: #2563eb;
       border-radius: 20px;
-      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 0 12px rgba(37, 99, 235, 0.6);
+      transition: width 0.3s ease-in-out;
+      box-shadow: 0 0 10px rgba(37, 99, 235, 0.5);
     }
 
     .progress-meta {
@@ -72,34 +74,35 @@
       font-size: 0.85rem;
       font-weight: 600;
       color: #94a3b8;
-      margin-bottom: 24px;
+      margin-bottom: 28px;
     }
 
     .btn-group {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 14px;
     }
 
     .btn {
       width: 100%;
       padding: 16px;
       border: none;
-      border-radius: 14px;
+      border-radius: 16px;
       font-size: 0.95rem;
       font-weight: 800;
       letter-spacing: 0.5px;
       cursor: pointer;
-      transition: background 0.2s ease, transform 0.1s ease;
+      transition: transform 0.1s ease, background 0.2s ease;
     }
 
     .btn:active:not(:disabled) {
-      transform: scale(0.98);
+      transform: scale(0.97);
     }
 
     .btn-share {
       background: #1d75f2;
       color: #ffffff;
+      box-shadow: 0 4px 15px rgba(29, 117, 242, 0.3);
     }
 
     .btn-unlock {
@@ -113,7 +116,7 @@
     }
 
     .btn:disabled {
-      opacity: 0.7;
+      opacity: 0.65;
       cursor: not-allowed;
     }
   </style>
@@ -153,7 +156,6 @@
     const FINAL_DESTINATION_URL = "https://t.me/+cs76HfenGYI4MWQ1";
 
     function handleTaskClick() {
-      // Agar saare 6 tasks ho chuke hain toh final channel pe redirect karo
       if (completedTasks >= totalTasks) {
         openFinalLink();
         return;
@@ -174,7 +176,6 @@
 
           AdController.show()
             .then((result) => {
-              // Direct increment without any timer
               if (tg && tg.HapticFeedback) {
                 tg.HapticFeedback.notificationOccurred('success');
               }
@@ -182,7 +183,6 @@
               updateUI();
             })
             .catch((error) => {
-              // Ad miss or close error - button reset immediately
               unlockBtn.disabled = false;
               updateUI();
             });
@@ -199,7 +199,6 @@
     function updateUI() {
       if (completedTasks > totalTasks) completedTasks = totalTasks;
 
-      // Percentage calculation
       const percent = Math.round((completedTasks / totalTasks) * 100);
       
       document.getElementById('percent-text').innerText = `${percent}% Completed`;
