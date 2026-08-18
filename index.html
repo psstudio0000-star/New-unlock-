@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Telegram Mini App</title>
+  <title>HD Premium Video Player</title>
 
   <!-- Telegram Web App SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -15,9 +15,8 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, Helvetica, Arial, sans-serif;
       user-select: none;
-      -webkit-tap-highlight-color: transparent;
     }
 
     body {
@@ -31,46 +30,77 @@
       overflow-x: hidden;
     }
 
+    .background-glow {
+      position: absolute;
+      width: 250px;
+      height: 250px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, rgba(0,0,0,0) 70%);
+      top: 10%;
+      z-index: 0;
+      animation: float 6s ease-in-out infinite alternate;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      100% { transform: translateY(-30px); }
+    }
+
     .card {
-      background: rgba(15, 23, 42, 0.72);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-radius: 28px;
-      padding: 24px;
+      position: relative;
+      z-index: 1;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 24px;
+      padding: 22px;
       width: 100%;
       max-width: 380px;
       text-align: center;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
-    }
-
-    .start-param-badge {
-      display: inline-block;
-      background: rgba(99, 102, 241, 0.2);
-      border: 1px solid rgba(99, 102, 241, 0.4);
-      color: #818cf8;
-      font-size: 11px;
-      font-weight: 700;
-      padding: 4px 12px;
-      border-radius: 20px;
-      margin-bottom: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(99, 102, 241, 0.15);
     }
 
     .player-preview {
       width: 100%;
       height: 190px;
-      background: linear-gradient(180deg, rgba(15, 23, 42, 0.1) 0%, rgba(15, 23, 42, 0.95) 100%), 
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.2) 0%, rgba(15, 23, 42, 0.95) 100%), 
                   url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=600&auto=format&fit=crop') center/cover;
-      border-radius: 20px;
+      border-radius: 18px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      overflow: hidden;
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.6);
+    }
+
+    .play-wrapper {
       position: relative;
       display: flex;
       justify-content: center;
       align-items: center;
-      margin-bottom: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.14);
+    }
+
+    .play-pulse-ring {
+      position: absolute;
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: rgba(239, 68, 68, 0.4);
+      animation: ringPulse 2s infinite;
+    }
+
+    @keyframes ringPulse {
+      0% { transform: scale(0.8); opacity: 1; }
+      100% { transform: scale(1.6); opacity: 0; }
     }
 
     .play-icon {
+      position: relative;
+      z-index: 2;
       width: 60px;
       height: 60px;
       background: linear-gradient(135deg, #ef4444, #dc2626);
@@ -78,7 +108,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      box-shadow: 0 0 30px rgba(239, 68, 68, 0.85);
+      box-shadow: 0 0 25px rgba(239, 68, 68, 0.8);
       cursor: pointer;
     }
 
@@ -87,45 +117,104 @@
       width: 0;
       height: 0;
       border-style: solid;
-      border-width: 10px 0 10px 18px;
+      border-width: 11px 0 11px 19px;
       border-color: transparent transparent transparent #ffffff;
-      margin-left: 4px;
+      margin-left: 5px;
+    }
+
+    .video-status-tag {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(8px);
+      font-size: 11px;
+      font-weight: 800;
+      padding: 5px 12px;
+      border-radius: 20px;
+      color: #f87171;
+      border: 1px solid rgba(248, 113, 113, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    .quality-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(99, 102, 241, 0.8);
+      backdrop-filter: blur(8px);
+      font-size: 10px;
+      font-weight: 800;
+      padding: 4px 8px;
+      border-radius: 6px;
+      color: #ffffff;
+    }
+
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      background-color: #ef4444;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #ef4444;
+      animation: blink 1.2s infinite;
+    }
+
+    @keyframes blink { 50% { opacity: 0.3; } }
+
+    .video-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+      color: #f8fafc;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .video-subtext {
+      font-size: 0.78rem;
+      color: #94a3b8;
+      margin-bottom: 16px;
     }
 
     .steps-grid {
       display: flex;
       justify-content: space-between;
       gap: 6px;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
     }
 
     .step-box {
       flex: 1;
-      height: 36px;
-      background: rgba(30, 41, 59, 0.6);
+      height: 34px;
+      background: rgba(30, 41, 59, 0.7);
       border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 12px;
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 11px;
       font-weight: 700;
       color: #64748b;
+      transition: all 0.4s ease;
     }
 
     .step-box.completed {
-      background: rgba(34, 197, 94, 0.18);
+      background: rgba(34, 197, 94, 0.2);
       border-color: #22c55e;
       color: #4ade80;
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.3);
     }
 
     .progress-bar-container {
       width: 100%;
-      height: 12px;
+      height: 14px;
       background-color: rgba(15, 23, 42, 0.9);
       border-radius: 20px;
       overflow: hidden;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       border: 1px solid rgba(255, 255, 255, 0.08);
       padding: 2px;
     }
@@ -135,7 +224,8 @@
       width: 0%;
       background: linear-gradient(90deg, #6366f1, #06b6d4, #10b981);
       border-radius: 20px;
-      transition: width 0.5s ease;
+      transition: width 0.4s ease;
+      box-shadow: 0 0 15px rgba(6, 182, 212, 0.7);
     }
 
     .progress-info {
@@ -144,28 +234,61 @@
       font-size: 0.8rem;
       font-weight: 700;
       color: #cbd5e1;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
     }
 
     .btn {
+      position: relative;
       width: 100%;
       padding: 16px;
       border: none;
-      border-radius: 16px;
+      border-radius: 14px;
       font-weight: 800;
       font-size: 0.95rem;
-      background: linear-gradient(135deg, #4f46e5, #3b82f6);
-      color: #ffffff;
+      letter-spacing: 0.5px;
       cursor: pointer;
+      overflow: hidden;
+      transition: all 0.2s ease;
     }
 
-    .btn:disabled {
-      opacity: 0.8;
+    .btn-unlock {
+      background: linear-gradient(135deg, #4f46e5, #3b82f6);
+      color: #ffffff;
+      box-shadow: 0 8px 25px rgba(79, 70, 229, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-unlock::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(60deg, transparent, rgba(255,255,255,0.25), transparent);
+      transform: rotate(30deg);
+      animation: shine 3s infinite;
+    }
+
+    @keyframes shine {
+      0% { transform: translateX(-100%) rotate(30deg); }
+      20% { transform: translateX(100%) rotate(30deg); }
+      100% { transform: translateX(100%) rotate(30deg); }
+    }
+
+    .btn-unlock.active {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      box-shadow: 0 8px 25px rgba(239, 68, 68, 0.5);
+    }
+
+    .btn-unlock:disabled {
+      opacity: 0.85;
       cursor: not-allowed;
     }
 
+    /* Modal Styling */
     .modal-overlay {
-      display: flex;
+      display: none;
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
@@ -173,24 +296,53 @@
       justify-content: center;
       align-items: center;
       z-index: 9999;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
-    }
-
-    .modal-overlay.show {
-      opacity: 1;
-      pointer-events: auto;
+      backdrop-filter: blur(10px);
     }
 
     .modal-box {
-      background: rgba(15, 23, 42, 0.96);
+      background: rgba(15, 23, 42, 0.95);
       border: 2px solid #ef4444;
-      border-radius: 26px;
-      padding: 28px 22px;
+      border-radius: 24px;
+      padding: 26px 20px;
       width: 88%;
       max-width: 340px;
       text-align: center;
+      box-shadow: 0 0 40px rgba(239, 68, 68, 0.35);
+      animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .share-icon-wrapper {
+      width: 60px;
+      height: 60px;
+      background: rgba(239, 68, 68, 0.15);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px auto;
+      font-size: 28px;
+      border: 1px solid #ef4444;
+    }
+
+    .share-count-text {
+      color: #ef4444;
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    .share-instruction {
+      color: #e2e8f0;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 18px;
+      line-height: 1.5;
     }
 
     .share-link-btn {
@@ -199,45 +351,46 @@
       text-decoration: none;
       background: linear-gradient(135deg, #2563eb, #1d4ed8);
       color: #ffffff;
-      padding: 15px 0;
-      border-radius: 14px;
+      padding: 14px 0;
+      border-radius: 12px;
       font-size: 15px;
       font-weight: 800;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
+      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
     }
 
     .ok-btn {
       background: linear-gradient(135deg, #22c55e, #16a34a);
       color: #ffffff;
       border: none;
-      padding: 15px 0;
+      padding: 14px 0;
       width: 100%;
-      border-radius: 14px;
+      border-radius: 12px;
       font-size: 15px;
       font-weight: 800;
       cursor: pointer;
-    }
-
-    .inline-error {
-      color: #f87171;
-      font-size: 12px;
-      font-weight: 700;
-      margin-bottom: 12px;
-      display: none;
+      box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
     }
   </style>
 </head>
 <body>
 
-  <div class="card">
-    <div class="start-param-badge" id="start-param-tag">ID: PARAM_NOT_FOUND</div>
+  <div class="background-glow"></div>
 
+  <div class="card">
     <div class="player-preview">
-      <div class="play-icon" onclick="handleUnlockClick()"></div>
+      <div class="video-status-tag"><span class="live-dot"></span> LOCKED • ULTRA HD</div>
+      <div class="quality-badge">4K 60FPS</div>
+      <div class="play-wrapper" onclick="handleUnlockClick()">
+        <div class="play-pulse-ring"></div>
+        <div class="play-icon"></div>
+      </div>
     </div>
 
-    <h3 style="margin-bottom: 12px;" id="content-title">EXCLUSIVE CONTENT LINK</h3>
+    <div class="video-title">STEP MOM (FULL MOVIE)</div>
+    <div class="video-subtext">Duration: 1h 48m • Server #1 Fast Stream</div>
 
+    <!-- 5 Visual Step Boxes -->
     <div class="steps-grid">
       <div class="step-box" id="step-1">KEY 1</div>
       <div class="step-box" id="step-2">KEY 2</div>
@@ -255,21 +408,24 @@
       <span id="task-count">0 / 5 Keys</span>
     </div>
 
-    <button id="unlock-btn" class="btn" onclick="handleUnlockClick()">🔓 UNLOCK KEY 1 (0/5)</button>
+    <button id="unlock-btn" class="btn btn-unlock" onclick="handleUnlockClick()">🔓 UNLOCK KEY 1 (0/5)</button>
   </div>
 
+  <!-- Modal Pop-Up after 5 ads -->
   <div class="modal-overlay" id="shareModal">
     <div class="modal-box">
-      <h3 style="color: #ef4444; margin-bottom: 8px;">SHARE REQUIRED 🔗</h3>
-      <p style="font-size: 13px; color: #cbd5e1; margin-bottom: 16px;">Pehle niche diye gaye SHARE button par click karke groups me send karein!</p>
+      <div class="share-icon-wrapper">⚠️</div>
+      <div class="share-count-text">Opps! You haven't shared 3 links 🔗</div>
+      <div class="share-instruction">
+        Please share this link to <b>3 Telegram groups/friends</b> to get instant access!
+      </div>
       
-      <div id="modal-error-msg" class="inline-error">❌ Pehle SHARE button par click karein!</div>
-
-      <a class="share-link-btn" id="share-btn-link" href="#" target="_blank" onclick="registerShareClick()">
-        📲 SHARE TO GROUPS
+      <!-- Share Link Button -->
+      <a class="share-link-btn" href="https://t.me/share/url?url=https%3A%2F%2Ft.me%2F%2Bcs76HfenGYI4MWQ1&text=JOIN%20THIS%20AMAZING%20GROUP%20%F0%9F%A5%B5" target="_blank" onclick="registerShareClick()">
+        📲 SHARE TO 3 GROUPS
       </a>
 
-      <button id="modal-ok-btn" class="ok-btn" onclick="handleModalOkClick()">▶ ACCESS CONTENT NOW</button>
+      <button class="ok-btn" onclick="handleModalOkClick()">▶ WATCH NOW FULL HD</button>
     </div>
   </div>
 
@@ -280,18 +436,13 @@
       tg.expand();
     }
 
-    // Read startapp parameter (e.g. startapp=8)
-    const startParam = tg?.initDataUnsafe?.start_param || new URLSearchParams(window.location.search).get('startapp') || "8";
-    document.getElementById('start-param-tag').innerText = `ID / PARAM: ${startParam}`;
-
     let completedTasks = 0;
     const totalTasks = 5;
-    const ADSGRAM_BLOCK_ID = "43334";
+    const ADSGRAM_BLOCK_ID = "42947";
     let isWaiting = false;
     let hasShared = false;
 
     const FINAL_DESTINATION_URL = "https://t.me/+cs76HfenGYI4MWQ1";
-    document.getElementById('share-btn-link').href = `https://t.me/share/url?url=https%3A%2F%2Ft.me%2Fsdgfdeddddbottbot%2Fapp%3Fstartapp%3D${startParam}&text=WATCH%20THIS%20EXCLUSIVE%20CONTENT`;
 
     const stepMessages = [
       "🔓 UNLOCK KEY 1 (0/5)",
@@ -312,7 +463,7 @@
 
       const unlockBtn = document.getElementById('unlock-btn');
       unlockBtn.disabled = true;
-      unlockBtn.innerText = "📺 WATCH FULL AD TO UNLOCK...";
+      unlockBtn.innerText = "⚡ VERIFYING DECRYPTION...";
 
       executeAdCall();
     }
@@ -322,8 +473,8 @@
         try {
           const AdController = window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID });
 
-          AdController.show().then((result) => {
-            if (result && (result.done || result.rewarded || result.state === 'completed')) {
+          AdController.show()
+            .then((result) => {
               if (tg && tg.HapticFeedback) {
                 tg.HapticFeedback.notificationOccurred('success');
               }
@@ -334,26 +485,23 @@
                 isWaiting = false;
                 showShareModal();
               } else {
-                startCoolDownBuffer("⏳ Next Key Available in", 10);
+                startCoolDownBuffer("⚡ Next key loading in");
               }
-            } else {
-              startCoolDownBuffer("⚠️ Ad Skipped! Complete Ad in", 5);
-            }
-          }).catch(() => {
-            startCoolDownBuffer("⚠️ Ad Not Finished! Retry in", 5);
-          });
+            })
+            .catch((error) => {
+              startCoolDownBuffer("⚠️ Ad missed, retrying in");
+            });
         } catch (err) {
-          startCoolDownBuffer("⏳ Loading Ad, retry in", 6);
+          startCoolDownBuffer("⏳ Retrying connection in");
         }
       } else {
-        startCoolDownBuffer("⏳ Reloading SDK, retry in", 6);
+        startCoolDownBuffer("⏳ Loading ad server in");
       }
     }
 
-    function startCoolDownBuffer(msgPrefix, seconds) {
+    function startCoolDownBuffer(msgPrefix) {
       const unlockBtn = document.getElementById('unlock-btn');
-      let timeLeft = seconds;
-      unlockBtn.disabled = true;
+      let timeLeft = 2;
 
       const cooldown = setInterval(() => {
         unlockBtn.innerText = `${msgPrefix} ${timeLeft}s...`;
@@ -362,7 +510,6 @@
         if (timeLeft < 0) {
           clearInterval(cooldown);
           isWaiting = false;
-          unlockBtn.disabled = false;
           updateUI();
         }
       }, 1000);
@@ -380,45 +527,4 @@
       }
 
       const percent = Math.round((completedTasks / totalTasks) * 100);
-      document.getElementById('progress-percent').innerText = `${percent}% Decrypted`;
-      document.getElementById('task-count').innerText = `${completedTasks} / ${totalTasks} Keys`;
-      document.getElementById('progress-fill').style.width = `${percent}%`;
-
-      const unlockBtn = document.getElementById('unlock-btn');
-
-      if (!isWaiting) {
-        unlockBtn.disabled = false;
-        if (completedTasks >= totalTasks) {
-          unlockBtn.innerText = `⚠️ SHARE REQUIRED TO UNLOCK`;
-        } else {
-          unlockBtn.innerText = stepMessages[completedTasks];
-        }
-      }
-    }
-
-    function showShareModal() {
-      document.getElementById('shareModal').classList.add('show');
-    }
-
-    function registerShareClick() {
-      hasShared = true;
-      document.getElementById('modal-error-msg').style.display = 'none';
-      document.getElementById('modal-ok-btn').innerText = "✅ UNLOCKED! ACCESS NOW";
-    }
-
-    function handleModalOkClick() {
-      if (!hasShared) {
-        document.getElementById('modal-error-msg').style.display = 'block';
-        return;
-      }
-
-      document.getElementById('shareModal').classList.remove('show');
-      if (tg && tg.openTelegramLink && FINAL_DESTINATION_URL.includes("t.me")) {
-        tg.openTelegramLink(FINAL_DESTINATION_URL);
-      } else {
-        window.location.href = FINAL_DESTINATION_URL;
-      }
-    }
-  </script>
-</body>
-</html>
+      document.getElementById('progress-percent')
