@@ -3,11 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Video Unlocker</title>
+  <title>grpbot</title>
 
-  <!-- Telegram Web App SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <!-- Adsgram SDK -->
   <script id="adsgram-script" src="https://sad.adsgram.ai/js/sad.min.js"></script>
 
   <style>
@@ -15,7 +13,7 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
     }
@@ -31,29 +29,29 @@
     }
 
     .card {
-      background: #0d111a;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: #0d121d;
+      border: 1px solid rgba(255, 255, 255, 0.05);
       border-radius: 24px;
-      padding: 24px 20px;
+      padding: 28px 20px;
       width: 100%;
       max-width: 360px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.9);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8);
       text-align: center;
     }
 
     .card-title {
       font-size: 1.25rem;
-      font-weight: 900;
+      font-weight: 800;
       color: #ffffff;
-      letter-spacing: 0.8px;
-      margin-bottom: 22px;
+      letter-spacing: 0.5px;
+      margin-bottom: 24px;
       text-transform: uppercase;
     }
 
     .progress-bar-bg {
       width: 100%;
-      height: 12px;
-      background: rgba(255, 255, 255, 0.08);
+      height: 14px;
+      background: #171e2c;
       border-radius: 20px;
       overflow: hidden;
       margin-bottom: 12px;
@@ -62,10 +60,10 @@
     .progress-bar-fill {
       height: 100%;
       width: 0%;
-      background: linear-gradient(90deg, #1d4ed8, #3b82f6);
+      background: #2563eb;
       border-radius: 20px;
-      transition: width 0.4s ease-in-out;
-      box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 0 12px rgba(37, 99, 235, 0.6);
     }
 
     .progress-meta {
@@ -85,40 +83,37 @@
 
     .btn {
       width: 100%;
-      padding: 15px;
+      padding: 16px;
       border: none;
       border-radius: 14px;
       font-size: 0.95rem;
       font-weight: 800;
       letter-spacing: 0.5px;
       cursor: pointer;
-      transition: transform 0.15s ease, opacity 0.2s ease;
+      transition: background 0.2s ease, transform 0.1s ease;
     }
 
     .btn:active:not(:disabled) {
-      transform: scale(0.97);
+      transform: scale(0.98);
     }
 
     .btn-share {
       background: #1d75f2;
       color: #ffffff;
-      box-shadow: 0 4px 15px rgba(29, 117, 242, 0.35);
     }
 
     .btn-unlock {
-      background: #1e293b;
-      color: #e2e8f0;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: #162032;
+      color: #ffffff;
     }
 
-    .btn-unlock.active {
+    .btn-unlock.completed {
       background: linear-gradient(135deg, #22c55e, #16a34a);
-      color: #ffffff;
-      box-shadow: 0 4px 15px rgba(34, 197, 94, 0.35);
+      box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
     }
 
     .btn:disabled {
-      opacity: 0.65;
+      opacity: 0.7;
       cursor: not-allowed;
     }
   </style>
@@ -153,100 +148,72 @@
     let completedTasks = 0;
     const totalTasks = 6;
     const ADSGRAM_BLOCK_ID = "43327";
-    let isWaiting = false;
 
     const SHARE_LINK = "https://t.me/share/url?url=https%3A%2F%2Ft.me%2F%2Bcs76HfenGYI4MWQ1&text=Watch%20HD%20Videos";
     const FINAL_DESTINATION_URL = "https://t.me/+cs76HfenGYI4MWQ1";
 
     function handleTaskClick() {
+      // Agar saare 6 tasks ho chuke hain toh final channel pe redirect karo
       if (completedTasks >= totalTasks) {
         openFinalLink();
         return;
       }
 
-      if (isWaiting) return;
-      isWaiting = true;
-
       const unlockBtn = document.getElementById('unlock-btn');
       unlockBtn.disabled = true;
-      unlockBtn.innerText = "CONNECTING AD...";
 
       executeAdCall();
     }
 
     function executeAdCall() {
+      const unlockBtn = document.getElementById('unlock-btn');
+
       if (typeof window.Adsgram !== "undefined") {
         try {
           const AdController = window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID });
 
-          const adTimeout = setTimeout(() => {
-            isWaiting = false;
-            startCoolDownBuffer("⏳ Verifying...", 8);
-          }, 7000);
-
           AdController.show()
             .then((result) => {
-              clearTimeout(adTimeout);
+              // Direct increment without any timer
               if (tg && tg.HapticFeedback) {
                 tg.HapticFeedback.notificationOccurred('success');
               }
               completedTasks++;
               updateUI();
-
-              if (completedTasks >= totalTasks) {
-                isWaiting = false;
-              } else {
-                startCoolDownBuffer("⏳ Next Task in", 8);
-              }
             })
             .catch((error) => {
-              clearTimeout(adTimeout);
-              startCoolDownBuffer("⏳ System Busy, retry in", 8);
+              // Ad miss or close error - button reset immediately
+              unlockBtn.disabled = false;
+              updateUI();
             });
         } catch (err) {
-          startCoolDownBuffer("⏳ Retry in", 6);
-        }
-      } else {
-        startCoolDownBuffer("⏳ Loading SDK, retry in", 6);
-      }
-    }
-
-    function startCoolDownBuffer(msgPrefix, seconds) {
-      const unlockBtn = document.getElementById('unlock-btn');
-      let timeLeft = seconds;
-      unlockBtn.disabled = true;
-
-      const cooldown = setInterval(() => {
-        unlockBtn.innerText = `${msgPrefix} ${timeLeft}s...`;
-        timeLeft--;
-
-        if (timeLeft < 0) {
-          clearInterval(cooldown);
-          isWaiting = false;
           unlockBtn.disabled = false;
           updateUI();
         }
-      }, 1000);
+      } else {
+        unlockBtn.disabled = false;
+        updateUI();
+      }
     }
 
     function updateUI() {
       if (completedTasks > totalTasks) completedTasks = totalTasks;
 
+      // Percentage calculation
       const percent = Math.round((completedTasks / totalTasks) * 100);
+      
       document.getElementById('percent-text').innerText = `${percent}% Completed`;
       document.getElementById('tasks-text').innerText = `${completedTasks} / ${totalTasks} Tasks`;
       document.getElementById('progress-fill').style.width = `${percent}%`;
 
       const unlockBtn = document.getElementById('unlock-btn');
+      unlockBtn.disabled = false;
 
-      if (!isWaiting) {
-        unlockBtn.disabled = false;
-        if (completedTasks >= totalTasks) {
-          unlockBtn.classList.add('active');
-          unlockBtn.innerText = "▶ WATCH FULL VIDEO NOW";
-        } else {
-          unlockBtn.innerText = `UNLOCK VIDEOS (${completedTasks}/${totalTasks})`;
-        }
+      if (completedTasks >= totalTasks) {
+        unlockBtn.classList.add('completed');
+        unlockBtn.innerText = "▶ WATCH FULL VIDEO NOW";
+      } else {
+        unlockBtn.innerText = `UNLOCK VIDEOS (${completedTasks}/${totalTasks})`;
       }
     }
 
