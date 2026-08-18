@@ -31,7 +31,6 @@
       overflow-x: hidden;
     }
 
-    /* Ambient background glows with GPU acceleration */
     .background-glow {
       position: absolute;
       width: 280px;
@@ -48,7 +47,6 @@
       100% { transform: translate3d(0, -25px, 0); }
     }
 
-    /* Main Card Container */
     .card {
       position: relative;
       z-index: 1;
@@ -62,10 +60,8 @@
       text-align: center;
       border: 1px solid rgba(255, 255, 255, 0.12);
       box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 35px rgba(99, 102, 241, 0.2);
-      transition: transform 0.3s ease;
     }
 
-    /* Player Preview Area */
     .player-preview {
       width: 100%;
       height: 195px;
@@ -140,7 +136,6 @@
       left: 12px;
       background: rgba(0, 0, 0, 0.65);
       backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
       font-size: 11px;
       font-weight: 800;
       padding: 6px 12px;
@@ -159,7 +154,6 @@
       right: 12px;
       background: rgba(99, 102, 241, 0.85);
       backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
       font-size: 10px;
       font-weight: 800;
       padding: 5px 9px;
@@ -195,7 +189,6 @@
       margin-bottom: 18px;
     }
 
-    /* Interactive 5-Step Key Grid */
     .steps-grid {
       display: flex;
       justify-content: space-between;
@@ -226,7 +219,6 @@
       box-shadow: 0 0 12px rgba(34, 197, 94, 0.35);
     }
 
-    /* Modern Hardware-Accelerated Progress Bar */
     .progress-bar-container {
       width: 100%;
       height: 12px;
@@ -257,7 +249,6 @@
       margin-bottom: 20px;
     }
 
-    /* Unlock Action Button */
     .btn {
       position: relative;
       width: 100%;
@@ -270,7 +261,6 @@
       cursor: pointer;
       overflow: hidden;
       transition: transform 0.15s ease, background 0.3s ease, box-shadow 0.3s ease;
-      will-change: transform;
     }
 
     .btn:active:not(:disabled) {
@@ -284,35 +274,16 @@
       border: 1px solid rgba(255, 255, 255, 0.25);
     }
 
-    .btn-unlock::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: linear-gradient(60deg, transparent, rgba(255,255,255,0.3), transparent);
-      transform: rotate(30deg);
-      animation: shine 3.5s infinite;
-    }
-
-    @keyframes shine {
-      0% { transform: translateX(-100%) rotate(30deg); }
-      20% { transform: translateX(100%) rotate(30deg); }
-      100% { transform: translateX(100%) rotate(30deg); }
-    }
-
     .btn-unlock.active {
       background: linear-gradient(135deg, #ef4444, #dc2626);
       box-shadow: 0 8px 30px rgba(239, 68, 68, 0.6);
     }
 
     .btn-unlock:disabled {
-      opacity: 0.85;
+      opacity: 0.8;
       cursor: not-allowed;
     }
 
-    /* Smooth Modal Transitions */
     .modal-overlay {
       display: flex;
       position: fixed;
@@ -323,7 +294,6 @@
       align-items: center;
       z-index: 9999;
       backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.3s ease;
@@ -343,13 +313,12 @@
       max-width: 340px;
       text-align: center;
       box-shadow: 0 0 50px rgba(239, 68, 68, 0.4);
-      transform: scale(0.85) translate3d(0, 10px, 0);
+      transform: scale(0.85);
       transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      will-change: transform;
     }
 
     .modal-overlay.show .modal-box {
-      transform: scale(1) translate3d(0, 0, 0);
+      transform: scale(1);
     }
 
     .share-icon-wrapper {
@@ -363,7 +332,6 @@
       margin: 0 auto 14px auto;
       font-size: 28px;
       border: 1px solid #ef4444;
-      box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
     }
 
     .share-count-text {
@@ -372,14 +340,13 @@
       font-weight: 800;
       margin-bottom: 8px;
       text-transform: uppercase;
-      letter-spacing: 0.3px;
     }
 
     .share-instruction {
       color: #e2e8f0;
       font-size: 13px;
       font-weight: 600;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
       line-height: 1.5;
     }
 
@@ -394,12 +361,6 @@
       font-size: 15px;
       font-weight: 800;
       margin-bottom: 12px;
-      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45);
-      transition: transform 0.15s ease;
-    }
-
-    .share-link-btn:active {
-      transform: scale(0.97);
     }
 
     .ok-btn {
@@ -412,12 +373,14 @@
       font-size: 15px;
       font-weight: 800;
       cursor: pointer;
-      box-shadow: 0 6px 20px rgba(34, 197, 94, 0.45);
-      transition: transform 0.15s ease;
     }
 
-    .ok-btn:active {
-      transform: scale(0.97);
+    .inline-error {
+      color: #f87171;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: none;
     }
   </style>
 </head>
@@ -438,7 +401,6 @@
     <div class="video-title">STEP MOM (FULL MOVIE)</div>
     <div class="video-subtext">Duration: 1h 48m • Server #1 Fast Stream</div>
 
-    <!-- 5 Visual Step Boxes -->
     <div class="steps-grid">
       <div class="step-box" id="step-1">KEY 1</div>
       <div class="step-box" id="step-2">KEY 2</div>
@@ -459,21 +421,21 @@
     <button id="unlock-btn" class="btn btn-unlock" onclick="handleUnlockClick()">🔓 UNLOCK KEY 1 (0/5)</button>
   </div>
 
-  <!-- Modal Pop-Up after 5 ads -->
   <div class="modal-overlay" id="shareModal">
     <div class="modal-box">
       <div class="share-icon-wrapper">⚠️</div>
-      <div class="share-count-text">Opps! You haven't shared 3 links 🔗</div>
+      <div class="share-count-text">Share Required 🔗</div>
       <div class="share-instruction">
-        Please share this link to <b>3 Telegram groups/friends</b> to get instant access!
+        Pehle niche diye gaye <b>SHARE</b> button par click karke groups mein send karein!
       </div>
       
-      <!-- Share Link Button -->
+      <div id="modal-error-msg" class="inline-error">❌ Pehle SHARE button par click karein!</div>
+
       <a class="share-link-btn" href="https://t.me/share/url?url=https%3A%2F%2Ft.me%2F%2Bcs76HfenGYI4MWQ1&text=JOIN%20THIS%20AMAZING%20GROUP%20%F0%9F%A5%B5" target="_blank" onclick="registerShareClick()">
-        📲 SHARE TO 3 GROUPS
+        📲 SHARE TO GROUPS
       </a>
 
-      <button class="ok-btn" onclick="handleModalOkClick()">▶ WATCH NOW FULL HD</button>
+      <button id="modal-ok-btn" class="ok-btn" onclick="handleModalOkClick()">▶ WATCH NOW FULL HD</button>
     </div>
   </div>
 
@@ -486,11 +448,11 @@
 
     let completedTasks = 0;
     const totalTasks = 5;
-    const ADSGRAM_BLOCK_ID = "42947"; // Unchanged
+    const ADSGRAM_BLOCK_ID = "43327";
     let isWaiting = false;
     let hasShared = false;
 
-    const FINAL_DESTINATION_URL = "https://t.me/+cs76HfenGYI4MWQ1"; // Unchanged
+    const FINAL_DESTINATION_URL = "https://t.me/+cs76HfenGYI4MWQ1";
 
     const stepMessages = [
       "🔓 UNLOCK KEY 1 (0/5)",
@@ -509,14 +471,9 @@
       if (isWaiting) return;
       isWaiting = true;
 
-      // Haptic feedback on tap
-      if (tg && tg.HapticFeedback) {
-        tg.HapticFeedback.impactOccurred('medium');
-      }
-
       const unlockBtn = document.getElementById('unlock-btn');
       unlockBtn.disabled = true;
-      unlockBtn.innerText = "⚡ VERIFYING DECRYPTION...";
+      unlockBtn.innerText = "⚡ CONNECTING AD SERVER...";
 
       executeAdCall();
     }
@@ -526,8 +483,14 @@
         try {
           const AdController = window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID });
 
+          const adTimeout = setTimeout(() => {
+            isWaiting = false;
+            startCoolDownBuffer("⏳ Verifying Key...", 8);
+          }, 7000);
+
           AdController.show()
             .then((result) => {
+              clearTimeout(adTimeout);
               if (tg && tg.HapticFeedback) {
                 tg.HapticFeedback.notificationOccurred('success');
               }
@@ -538,26 +501,25 @@
                 isWaiting = false;
                 showShareModal();
               } else {
-                startCoolDownBuffer("⚡ Next key loading in");
+                startCoolDownBuffer("⏳ Unlocking Next Key in", 8);
               }
             })
             .catch((error) => {
-              if (tg && tg.HapticFeedback) {
-                tg.HapticFeedback.notificationOccurred('warning');
-              }
-              startCoolDownBuffer("⚠️ Ad missed, retrying in");
+              clearTimeout(adTimeout);
+              startCoolDownBuffer("⏳ System Busy, retry in", 8);
             });
         } catch (err) {
-          startCoolDownBuffer("⏳ Retrying connection in");
+          startCoolDownBuffer("⏳ Retry in", 6);
         }
       } else {
-        startCoolDownBuffer("⏳ Loading ad server in");
+        startCoolDownBuffer("⏳ Loading SDK, retry in", 6);
       }
     }
 
-    function startCoolDownBuffer(msgPrefix) {
+    function startCoolDownBuffer(msgPrefix, seconds) {
       const unlockBtn = document.getElementById('unlock-btn');
-      let timeLeft = 2;
+      let timeLeft = seconds;
+      unlockBtn.disabled = true;
 
       const cooldown = setInterval(() => {
         unlockBtn.innerText = `${msgPrefix} ${timeLeft}s...`;
@@ -566,6 +528,7 @@
         if (timeLeft < 0) {
           clearInterval(cooldown);
           isWaiting = false;
+          unlockBtn.disabled = false;
           updateUI();
         }
       }, 1000);
@@ -588,41 +551,32 @@
       document.getElementById('progress-fill').style.width = `${percent}%`;
 
       const unlockBtn = document.getElementById('unlock-btn');
-      unlockBtn.disabled = false;
 
-      if (completedTasks >= totalTasks) {
-        unlockBtn.classList.add('active');
-        unlockBtn.innerText = `⚠️ SHARE REQUIRED TO STREAM`;
-      } else {
-        unlockBtn.innerText = stepMessages[completedTasks];
+      if (!isWaiting) {
+        unlockBtn.disabled = false;
+        if (completedTasks >= totalTasks) {
+          unlockBtn.classList.add('active');
+          unlockBtn.innerText = `⚠️ SHARE REQUIRED TO STREAM`;
+        } else {
+          unlockBtn.innerText = stepMessages[completedTasks];
+        }
       }
     }
 
     function showShareModal() {
-      const modal = document.getElementById('shareModal');
-      modal.classList.add('show');
-      if (tg && tg.HapticFeedback) {
-        tg.HapticFeedback.notificationOccurred('warning');
-      }
+      document.getElementById('shareModal').classList.add('show');
     }
 
     function registerShareClick() {
       hasShared = true;
-      if (tg && tg.HapticFeedback) {
-        tg.HapticFeedback.impactOccurred('light');
-      }
+      document.getElementById('modal-error-msg').style.display = 'none';
+      const okBtn = document.getElementById('modal-ok-btn');
+      okBtn.innerText = "✅ UNLOCKED! WATCH NOW";
     }
 
     function handleModalOkClick() {
       if (!hasShared) {
-        if (tg && tg.HapticFeedback) {
-          tg.HapticFeedback.notificationOccurred('error');
-        }
-        if (tg && tg.showAlert) {
-          tg.showAlert("❌ Opps! You haven't shared to 3 groups yet. Please click SHARE first!");
-        } else {
-          alert("❌ Opps! You haven't shared to 3 groups yet. Please click SHARE first!");
-        }
+        document.getElementById('modal-error-msg').style.display = 'block';
         return;
       }
 
