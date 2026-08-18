@@ -448,7 +448,7 @@
 
     let completedTasks = 0;
     const totalTasks = 5;
-    const ADSGRAM_BLOCK_ID = "43327";
+    const ADSGRAM_BLOCK_ID = "43334";
     let isWaiting = false;
     let hasShared = false;
 
@@ -473,7 +473,7 @@
 
       const unlockBtn = document.getElementById('unlock-btn');
       unlockBtn.disabled = true;
-      unlockBtn.innerText = "⚡ CONNECTING AD SERVER...";
+      unlockBtn.innerText = "📺 WATCH FULL AD TO UNLOCK...";
 
       executeAdCall();
     }
@@ -483,36 +483,34 @@
         try {
           const AdController = window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID });
 
-          const adTimeout = setTimeout(() => {
-            isWaiting = false;
-            startCoolDownBuffer("⏳ Verifying Key...", 8);
-          }, 7000);
-
           AdController.show()
             .then((result) => {
-              clearTimeout(adTimeout);
-              if (tg && tg.HapticFeedback) {
-                tg.HapticFeedback.notificationOccurred('success');
-              }
-              completedTasks++;
-              updateUI();
+              // Strictly verify if ad was completed/rewarded
+              if (result && (result.done || result.rewarded || result.state === 'completed')) {
+                if (tg && tg.HapticFeedback) {
+                  tg.HapticFeedback.notificationOccurred('success');
+                }
+                completedTasks++;
+                updateUI();
 
-              if (completedTasks >= totalTasks) {
-                isWaiting = false;
-                showShareModal();
+                if (completedTasks >= totalTasks) {
+                  isWaiting = false;
+                  showShareModal();
+                } else {
+                  startCoolDownBuffer("⏳ Next Key Available in", 10);
+                }
               } else {
-                startCoolDownBuffer("⏳ Unlocking Next Key in", 8);
+                startCoolDownBuffer("⚠️ Ad Skipped! Complete Ad in", 5);
               }
             })
             .catch((error) => {
-              clearTimeout(adTimeout);
-              startCoolDownBuffer("⏳ System Busy, retry in", 8);
+              startCoolDownBuffer("⚠️ Ad Not Finished! Retry in", 5);
             });
         } catch (err) {
-          startCoolDownBuffer("⏳ Retry in", 6);
+          startCoolDownBuffer("⏳ Loading Ad, retry in", 6);
         }
       } else {
-        startCoolDownBuffer("⏳ Loading SDK, retry in", 6);
+        startCoolDownBuffer("⏳ Reloading SDK, retry in", 6);
       }
     }
 
